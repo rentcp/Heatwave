@@ -1,0 +1,4 @@
+-r common.txt
+pytest==3.3.2
+pytest-randomly==1.2.3
+

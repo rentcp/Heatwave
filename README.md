@@ -11,12 +11,19 @@ Commissioned by Chris Rentsch
 1. Install Anaconda
 2. Start an Anaconda Prompt
 3. Install dependencies:
+
 >>>conda install py-hdf -c conda-forge
+
 >>>conda install requests
+
 >>>conda install pytest
+
 >>>pip install asciimatics
+
 >>>pip install pytest-randomly
+
 >>>conda install matplotlib
+
 >>>conda install pandas
 
 **Example execution**

@@ -28,10 +28,12 @@ Commissioned by Chris Rentsch
 
 **Example execution**
 >>>>python cli.py
+
 The program will display the list of inputs required, their ranges, and their "<" versus "<=" distinctions.
 Use a text editor to set preferred parameters in example.json (you can name this anything.json)
 
 >>>>python cli.py example.json
+
 Enter your Earthdata login and password
 Program will run according to the settings in example.json file.
 
@@ -39,6 +41,7 @@ Program will run according to the settings in example.json file.
 There are two files:
 1. radiance_wavelength_month_2019-09-02_21-48-53_concatenated.csv
 2. radiance_wavelength_month_2019-09-02_21-48-53_stats.csv
+
 Each file has the same dimensions.
 File 1 contains the average radiance for each latitude bin for each AIRS channel for each month processed.
 File 2 contains the count of radiance measurements that contributed to the average in file 1.
@@ -49,6 +52,7 @@ For the latest versions available, see the tags on this repository.
 
 **Authors**
 Leon De Almeida - Initial work, 2 months - Freelancer.com
+
 Robert Amours - Subsequent work, 14+ months - Freelancer.com
 
 **License**

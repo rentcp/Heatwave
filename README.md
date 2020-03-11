@@ -7,7 +7,7 @@ designed for Aqua AIRS .hdf files
 Commissioned by Chris Rentsch 
 
 
-**Getting Started**
+**Getting Started (Windows)**
 1. Install Anaconda
 2. Start an Anaconda Prompt
 3. Install dependencies:
@@ -25,6 +25,23 @@ Commissioned by Chris Rentsch
 >>>conda install matplotlib
 
 >>>conda install pandas
+
+
+**Getting Started (Linux)**
+
+Most dependencies can be installed with pip, but HDF4 packages must be installed separately.
+
+```
+sudo apt install libhdf4-dev
+conda install -c conda-forge pyhdf
+```
+
+Then, the rest of the requirements can be installed with:
+
+```
+pip install -r requirements/common.txt
+```
+
 
 **Example execution**
 >>>>python cli.py

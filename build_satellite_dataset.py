@@ -20,6 +20,7 @@ import re
 import os
 from getpass import getpass
 from time import sleep
+from tqdm import tqdm
 from multiprocessing.pool import ThreadPool as Pool
 
 from urllib3.exceptions import NewConnectionError, MaxRetryError
@@ -100,7 +101,10 @@ def get_information_from_xml(period, files):
         max_retries = 500
         num_retries = 0
         while not finished:
-            for filename in files:
+            desc = 'day {}'.format(_day)
+            if num_retries != 0:
+                desc = 'day {} (retry #{})'.format(_day, num_retries)
+            for filename in tqdm(files, desc='day {}'.format(_day)):
                 url = "%s/%s/%s/%s" % (BASE_URL, _year, _day, filename)
                 xml = get_html(http_client, url)
                 _kernel = filename.split('.')[4]
@@ -135,7 +139,6 @@ def get_information_from_xml(period, files):
                     err_file.write("")
             else:
                 num_retries += 1
-                print("Retrying failed kernel files. Retry {}...".format(num_retries))
                 files = failed_kernel_files
                 failed_kernel_files = []
 
@@ -188,7 +191,9 @@ if __name__ == '__main__':
         print('\n')
         sleep(3)
 
-        print('Extracting data from XML content for %s...' % year)
+        print('Extracting data from XML content for {} ({} days to process, using {} threads)...'.format(year,
+                                                                                                         len(mapping),
+                                                                                                         THREADS))
         # grab each xml file and extract coordinates, BoundingRectangle, AIRSRunTag
         dropped_data = False
 
@@ -203,10 +208,10 @@ if __name__ == '__main__':
             with open(os.path.join(temp_directory_name, 'aqua_positions_%s.csv' % year), 'w') as output_file:
                 output_file.write('year,day,kernel,lat,lon,hdf_filename\n')
                 for resulting_groups in positions:
-                    for position in resulting_groups:
+                    for position in tqdm(resulting_groups, desc='Writing data'):
                         if position is not None:
                             output_file.write('%s,%s,%s,%s,%s,%s\n' % position)
-                            print('    - Wrote %s/%s/%s' % position[:3])
+                            # print('    - Wrote %s/%s/%s' % position[:3])
                         else:
                             dropped_data = True
                             print('MISSING DATA FOR WRITE')

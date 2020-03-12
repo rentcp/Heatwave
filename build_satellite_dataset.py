@@ -112,15 +112,17 @@ def get_information_from_xml(period, files):
                     _latitude = int(re.findall(XML_LAT, xml)[0])
 
                     _positions.append((_year, _day, _kernel, _latitude, _longitude, filename.replace('.xml', '')))
-                    print('    - Read %s/%s/%s' % (_year, _day, _kernel))
+                    # print('    - Read %s/%s/%s' % (_year, _day, _kernel))
                 except IndexError as e:
-                    print("Error encountered, attempting to retry. %s" % e)
+                    print("Error encountered, will retry.")
                     failed_kernel_files.append(filename)
                     # print('[get_information_from_xml] INDEX ERROR FOR %s/%s/%s: %s' % (_year, _day, filename, e))
                     # with open(os.path.join(output_dir, '%s-%s-%s.err' % (_year, _day, _kernel)), 'w') as err_file:
                     #     err_file.write(xml)
                 except Exception as e:
                     print('[get_information_from_xml] GENERIC ERROR FOR %s/%s/%s: %s' % (_year, _day, filename, e))
+                    print('Error encountered, will retry.')
+                    failed_kernel_files.append(filename)
 
             if not failed_kernel_files:
                 finished = True
@@ -188,6 +190,7 @@ if __name__ == '__main__':
 
         print('Extracting data from XML content for %s...' % year)
         # grab each xml file and extract coordinates, BoundingRectangle, AIRSRunTag
+        dropped_data = False
 
         with Pool(processes=THREADS) as pool:
             mapping = filter(lambda x: x[0][0] == year, xml_mapping)
@@ -205,9 +208,21 @@ if __name__ == '__main__':
                             output_file.write('%s,%s,%s,%s,%s,%s\n' % position)
                             print('    - Wrote %s/%s/%s' % position[:3])
                         else:
+                            dropped_data = True
                             print('MISSING DATA FOR WRITE')
 
         print('%s finished' % year)
+        if not dropped_data:
+            print('✔️  No data dropped')
+        else:
+            print('❌  Some data was dropped!')
+            positive_responses = ['y', 'Y']
+            negative_responses = ['n', 'N']
+            cancel = ''
+            while cancel not in positive_responses and cancel not in negative_responses:
+                cancel = input('Cancel process? Y/N: ')
+            if cancel in positive_responses:
+                exit(0)
         sleep(5)
 
     print('\n---------- Process finished ----------\n')

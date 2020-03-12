@@ -1,9 +1,15 @@
+import glob
 import os
 import datetime
+import shutil
+import zipfile
+
 import pandas
 import ephem
 import numpy
+from tqdm import tqdm
 
+tqdm.pandas()  # Register tqdm instance with Pandas for progress meter on 'progress_apply' func
 
 def calculate_central_angle(row):
     # Great circle central angle formula
@@ -37,32 +43,51 @@ def calculate_subsolar_point(row):
     return row
 
 
-base_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data'))
+def calculate_gca_for_files_and_zip(temp_directory, output_directory):
+    csv_glob = os.path.join(temp_directory, '*.csv')
+    temp_output_directory = os.path.join(temp_directory, 'new')
+    os.makedirs(temp_output_directory)
+    data_files = glob.glob(csv_glob)
 
-data_files = [
-    os.path.join(base_dir, 'aqua_positions_%s.csv.zip' % year) for year in range(2002, 2002 + 1)
-]
+    six_minutes = datetime.timedelta(minutes=6)
+    one_day = datetime.timedelta(days=1)
+    data_midnight_offset = datetime.timedelta(minutes=8, seconds=26)
 
-six_minutes = datetime.timedelta(minutes=6)
-one_day = datetime.timedelta(days=1)
-data_midnight_offset = datetime.timedelta(minutes=8, seconds=26)
+    for data_file in data_files:
+        data_file_basename = os.path.basename(data_file)
+        print("Processing data for %s..." % data_file_basename)
+        data = pandas.read_csv(data_file)
+        data = pandas.DataFrame(data)
+        data['time'] = pandas.to_datetime(data['year'], format='%Y', utc=True)
+        data['time'] += (data['kernel'] - 1) * six_minutes
+        data['time'] += (data['day'] - 1) * one_day
+        data['time'] += data_midnight_offset
 
-for year in range(2002, 2016 + 1):
-    print("Processing data for %s..." % year)
-    data_file = os.path.join(base_dir, 'aqua_positions_%s.csv.zip' % year)
-    data = pandas.read_csv(data_file)
-    data = pandas.DataFrame(data)
-    data['time'] = pandas.to_datetime(data['year'], format='%Y', utc=True)
-    data['time'] += (data['granule'] - 1) * six_minutes
-    data['time'] += (data['day'] - 1) * one_day
-    data['time'] += data_midnight_offset
+        print("Calculating subsolar points...")
+        data = data.progress_apply(calculate_subsolar_point, axis=1)
+        print("Calculating central angles...")
+        data = data.progress_apply(calculate_central_angle, axis=1)
+        print("Done with {}!".format(data_file))
+        final_filename = os.path.join(temp_directory, 'new', data_file_basename)
+        data = data.rename(columns={'kernel': 'granule'})
+        data.to_csv(final_filename,
+                    columns=['year', 'day', 'granule', 'lat', 'lon', 'hdf_filename', 'GCA'], index=False)
 
-    print("Calculating subsolar points...")
-    data = data.apply(calculate_subsolar_point, axis=1)
-    print("Calculating central angles...")
-    data = data.apply(calculate_central_angle, axis=1)
-    print("Done with %s!" % year)
-    data.to_csv('new/aqua_positions_%s.csv' % year,
-                columns=['year', 'day', 'granule', 'lat', 'lon', 'hdf_filename', 'GCA'], index=False)
+        print("Finished GCA calculations, zipping CSVs and moving to output directory...")
 
-print("Finished processing.")
+        final_basename = os.path.basename(final_filename)
+        zipped_name = final_basename + '.zip'  # Use .csv.zip extension
+        original_directory = os.getcwd()
+        os.chdir(os.path.join(temp_directory, 'new'))
+        with zipfile.ZipFile(zipped_name, 'w', compression=zipfile.ZIP_DEFLATED) as zipped:
+            zipped.write(final_basename)
+        os.chdir(original_directory)
+
+    new_dir_files = os.path.join(temp_directory, 'new', '*.csv.zip')
+    files_to_move = glob.glob(new_dir_files)
+    for file in files_to_move:
+        file_basename = os.path.basename(file)
+        moved_name = os.path.join(output_directory, file_basename)
+        os.rename(file, moved_name)
+    shutil.rmtree(temp_directory)
+    print("Finished processing.")

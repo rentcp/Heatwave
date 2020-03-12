@@ -15,7 +15,7 @@ all available days and kernels have been parsed would also be interesting.
 One doesn't need to use this script unless rebuilding the data/ files from scratch, or in the event that additional
 dates/kernels are made available.
 """
-
+import datetime
 import re
 import os
 from getpass import getpass
@@ -25,6 +25,7 @@ from multiprocessing.pool import ThreadPool as Pool
 from urllib3.exceptions import NewConnectionError, MaxRetryError
 from requests.exceptions import ConnectionError
 from classes._http import SessionWithHeaderRedirection
+from classes.calculate_GCA import calculate_gca_for_files_and_zip
 
 
 STARTING_YEAR = 2019
@@ -162,6 +163,9 @@ if __name__ == '__main__':
 
     print('Getting links for the relevant XML files...')
 
+    current_datetime = datetime.datetime.now().isoformat()
+    temp_directory_name = 'temp_{}'.format(current_datetime)
+    os.makedirs(temp_directory_name)
     xml_mapping = dict()
     for year in years_range:
         # Get these XML files with fewer threads so as to ensure that NONE of this data is dropped
@@ -193,7 +197,7 @@ if __name__ == '__main__':
 
             # [[_year, _day, _kernel, _latitude, _longitude, hdf_filename], ...]
             positions = position_results.get()
-            with open(os.path.join(output_dir, 'aqua_positions_%s.csv' % year), 'w') as output_file:
+            with open(os.path.join(temp_directory_name, 'aqua_positions_%s.csv' % year), 'w') as output_file:
                 output_file.write('year,day,kernel,lat,lon,hdf_filename\n')
                 for resulting_groups in positions:
                     for position in resulting_groups:
@@ -207,3 +211,6 @@ if __name__ == '__main__':
         sleep(5)
 
     print('\n---------- Process finished ----------\n')
+
+    # Begin doing GCA calculation
+    calculate_gca_for_files_and_zip(temp_directory_name, output_dir)

@@ -43,7 +43,7 @@ def calculate_subsolar_point(row):
     return row
 
 
-def calculate_gca_for_files_and_zip(temp_directory, output_directory):
+def calculate_gca_for_files_and_zip(temp_directory: str, output_directory):
     csv_glob = os.path.join(temp_directory, '*.csv')
     temp_output_directory = os.path.join(temp_directory, 'new')
     os.makedirs(temp_output_directory)
@@ -89,5 +89,9 @@ def calculate_gca_for_files_and_zip(temp_directory, output_directory):
         file_basename = os.path.basename(file)
         moved_name = os.path.join(output_directory, file_basename)
         os.rename(file, moved_name)
-    shutil.rmtree(temp_directory)
+
+    print('Remove directory where this program was run?')
+    delete = input('Delete {}, y/n: '.format(temp_directory))
+    if delete == 'y':
+        shutil.rmtree(temp_directory)
     print("Finished processing.")

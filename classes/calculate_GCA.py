@@ -14,7 +14,7 @@ def calculate_central_angle(row):
     _1 = numpy.sin(lat_rad) * numpy.sin(subsolar_lat_rad)
     _2 = numpy.cos(lat_rad) * numpy.cos(subsolar_lat_rad)
     _3 = _1 + (_2 * numpy.cos(numpy.fabs(lon_rad - subsolar_lon_rad)))
-    row['GCA'] = numpy.degrees(numpy.arccos(_3))
+    row['GCA'] = numpy.round(numpy.degrees(numpy.arccos(_3)), 1)
     return row
 
 

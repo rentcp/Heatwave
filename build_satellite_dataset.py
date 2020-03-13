@@ -29,11 +29,7 @@ from classes._http import SessionWithHeaderRedirection
 from classes.calculate_GCA import calculate_gca_for_files_and_zip
 
 
-STARTING_YEAR = 2019
-ENDING_YEAR = 2019
-
 THREADS = 13
-BASE_URL = "https://airsl2.gesdisc.eosdis.nasa.gov/data/Aqua_AIRS_Level2/AIRS2CCF.006/"
 
 DAY_PATTERN = re.compile(r'href=["\'](\d{3})/["\']', re.MULTILINE)
 XML_FILENAME_PATTERN = re.compile(
@@ -148,7 +144,33 @@ def get_information_from_xml(period, files):
 if __name__ == '__main__':
     user_name = input('Username for GESDISC/Earthdata Login: ')
     password = getpass()
-    output_dir = input('Output path: ')
+    STARTING_YEAR = int(input('Start year: '))
+    current_year = datetime.datetime.now().year
+    if not 2002 <= STARTING_YEAR <= current_year:
+        print('Start year must be between 2002 and the present.')
+        exit(1)
+    ENDING_YEAR = int(input('End year: '))
+    if not 2002 <= ENDING_YEAR <= current_year:
+        print('End year must be between 2002 and the present.')
+        exit(1)
+    urls = ["https://airsl2.gesdisc.eosdis.nasa.gov/data/Aqua_AIRS_Level2/AIRS2CCF.006/",
+            "https://airsl2.gesdisc.eosdis.nasa.gov/data/Aqua_AIRS_Level2/AIRI2CCF.006/",
+            "https://airsl1.gesdisc.eosdis.nasa.gov/data/Aqua_AIRS_Level1/AIRIBRAD.005/"
+            ]
+    print('From which URL do you want to get AIRS data? Choose one, or input a custom URL.')
+    for i in range(len(urls)):
+        print('{}: {}'.format(i+1, urls[i]))
+    chosen_url = input('URL or option: ')
+    try:
+        BASE_URL = urls[int(chosen_url)-1]
+    except ValueError:
+        BASE_URL = chosen_url
+    print('Chosen URL: {}'.format(BASE_URL))
+    output_dir = ''
+    while output_dir == '' or not os.path.exists(output_dir):
+        output_dir = input('Output path: ')
+        if not os.path.exists(output_dir):
+            print('This does not seem to be a valid path. Use an absolute or relative path to an existing directory:')
 
     years_range = list(range(STARTING_YEAR, ENDING_YEAR + 1))
 

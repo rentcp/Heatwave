@@ -168,8 +168,10 @@ if __name__ == '__main__':
 
     print('Getting links for the relevant XML files...')
 
-    current_datetime = datetime.datetime.now().isoformat()
-    temp_directory_name = 'temp_{}'.format(current_datetime)
+    current_datetime = datetime.datetime.now()
+    date = str(current_datetime.date())
+    timestamp = str(current_datetime.timestamp())
+    temp_directory_name = 'temp_{}'.format(date + timestamp)
     os.makedirs(temp_directory_name)
     xml_mapping = dict()
     for year in years_range:

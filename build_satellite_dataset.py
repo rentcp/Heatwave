@@ -50,20 +50,20 @@ def get_html(http_client, url, count=0, echo=False):
             print('ERROR: Max retries exceeded for url %s' % url)
             return None
     except NewConnectionError as e:
-        print(e)
+        print('NewConnectionError caught in get_html, retrying ({} of {})...'.format(count+1, 10))
         sleep(.5)
         count += 1
     except ConnectionError as e:
-        print(e)
+        print('ConnectionError caught in get_html, retrying ({} of {})...'.format(count+1, 10))
         sleep(.5)
         count += 1
     except MaxRetryError as e:
-        print(e)
+        print('MaxRetryError caught in get_html, retrying ({} of {})...'.format(count+1, 10))
         sleep(.5)
         count += 1
     except TimeoutError as e:
+        print('TimeoutError caught in get_html, retrying ({} of {})...'.format(count+1, 10))
         sleep(2)
-        print('Timeout error: %s' % e)
         count += 1
 
     return get_html(http_client, url, count)

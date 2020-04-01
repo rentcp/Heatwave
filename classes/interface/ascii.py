@@ -27,6 +27,7 @@ class FormStateData(object):
 
 class CheckBoxesGroup(object):
     """Provides logic to ensure at least one checkbox in a group is always checked"""
+
     def __init__(self, checkboxes, default_selection):
         self.checkboxes = checkboxes
         self.default = default_selection
@@ -256,6 +257,7 @@ if __name__ == '__main__':
             ascii_view.save()
             FormStateData.data = ascii_view.data
             raise
+
 
     while True:
         try:

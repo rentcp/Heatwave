@@ -29,12 +29,25 @@ Commissioned by Chris Rentsch
 
 **Getting Started (Linux)**
 
-Most dependencies can be installed with pip, but HDF4 packages must be installed separately.
+Most dependencies can be installed with pip, but the HDF4 development libraries must be installed on your system first.
 
+In Ubuntu / Debian-based systems, the required library can be found in the libhdf4-dev package, e.g.:
 ```
 sudo apt install libhdf4-dev
+```
+
+In Fedora / CentOS / RHEL, it can be found in the 'hdf-devel' package, e.g.:
+```
+sudo dnf install hdf-devel
+```
+
+Then, install pyhdf within an Anaconda virtual environment:
+```
 conda install -c conda-forge pyhdf
 ```
+
+Otherwise, the library must be compiled from [source](https://support.hdfgroup.org/products/hdf4/).
+
 
 Then, the rest of the requirements can be installed with:
 

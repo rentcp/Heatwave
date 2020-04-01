@@ -11,6 +11,7 @@ from tqdm import tqdm
 
 tqdm.pandas()  # Register tqdm instance with Pandas for progress meter on 'progress_apply' func
 
+
 def calculate_central_angle(row):
     # Great circle central angle formula
     lat_rad = numpy.radians(row['lat'])

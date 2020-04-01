@@ -38,5 +38,7 @@
 	    "selected_wavenumber": 818.933,
 
 	    "scanang_limit": 30,
-	    "inside_scanang": true
+	    "inside_scanang": true,
+	    "solzen_threshold": 108,
+	    "solzen_is_max": false
         }

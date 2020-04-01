@@ -224,6 +224,7 @@ def main():
             combined_stats_csv = concat([read_csv(f) for f in stats_filenames])
             combined_csv = combined_csv.sort_values(by=['period', 'wavenumber'])
             combined_stats_csv = combined_stats_csv.sort_values(by=['period', 'wavenumber'])
+            combined_stats_csv = combined_stats_csv.round(decimals=3)
             # round to 2 decimal places
             combined_csv = combined_csv.round(decimals=3)
 

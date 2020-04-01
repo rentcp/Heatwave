@@ -205,35 +205,40 @@ class MainController(object):
 
     @staticmethod
     def build_hdf_filter(data):
-        channel = None
-        use_radiance_filters = None
-        data_quality_best = data['data_quality_best']  # bool
-        data_quality_enough = data['data_quality_enough']  # bool
-        data_quality_worst = data['data_quality_worst']  # bool
-        dust_flag_no_dust = data['dust_flag_no_dust']  # bool
-        dust_flag_single_fov = data['dust_flag_single_fov']  # bool
-        dust_flag_detected = data['dust_flag_detected']  # bool
-        landfrac_threshold = float(data['landfrac_threshold'])
-        landfrac_threshold_is_max = data['landfrac_threshold_is_max']  # bool
-        cloud_cover_threshold = data['TotCld_4_CCfinal_threshold']
-        cloud_cover_threshold_is_max = data['TotCld_4_CCfinal_threshold_is_max']
-        all_spots_avg_threshold = data['all_spots_avg_threshold']
-        all_spots_avg_threshold_is_max = data['all_spots_avg_threshold_is_max']
-        examine_wavenumber_mode = data['examine_wavenumber_mode']
-        selected_wavenumber = data['selected_wavenumber']
-        scanang = float(data['scanang_limit'])
-        inside_scanang = data['inside_scanang']  # bool
-        solzen_threshold = float(data['solzen_threshold'])
-        solzen_is_max = data['solzen_is_max']  # bool
+        try:
+            channel = None
+            use_radiance_filters = None
+            data_quality_best = data['data_quality_best']  # bool
+            data_quality_enough = data['data_quality_enough']  # bool
+            data_quality_worst = data['data_quality_worst']  # bool
+            dust_flag_no_dust = data['dust_flag_no_dust']  # bool
+            dust_flag_single_fov = data['dust_flag_single_fov']  # bool
+            dust_flag_detected = data['dust_flag_detected']  # bool
+            landfrac_threshold = float(data['landfrac_threshold'])
+            landfrac_threshold_is_max = data['landfrac_threshold_is_max']  # bool
+            cloud_cover_threshold = data['TotCld_4_CCfinal_threshold']
+            cloud_cover_threshold_is_max = data['TotCld_4_CCfinal_threshold_is_max']
+            all_spots_avg_threshold = data['all_spots_avg_threshold']
+            all_spots_avg_threshold_is_max = data['all_spots_avg_threshold_is_max']
+            examine_wavenumber_mode = data['examine_wavenumber_mode']
+            selected_wavenumber = data['selected_wavenumber']
+            scanang = float(data['scanang_limit'])
+            inside_scanang = data['inside_scanang']  # bool
+            solzen_threshold = float(data['solzen_threshold'])
+            solzen_is_max = data['solzen_is_max']  # bool
 
-        noise_amp = data['noise_amp']  # bool
-        radiance = None
-        radiance_range = None
+            noise_amp = data['noise_amp']  # bool
+            radiance = None
+            radiance_range = None
 
-        return HDFFilter(
-            use_radiance_filters, radiance, radiance_range, channel, data_quality_best, data_quality_enough,
-            data_quality_worst, landfrac_threshold, landfrac_threshold_is_max, cloud_cover_threshold,
-            cloud_cover_threshold_is_max, all_spots_avg_threshold, all_spots_avg_threshold_is_max, noise_amp,
-            dust_flag_no_dust, dust_flag_single_fov, dust_flag_detected, examine_wavenumber_mode, selected_wavenumber,
-            scanang, inside_scanang, solzen_threshold, solzen_is_max
-        )
+            return HDFFilter(
+                use_radiance_filters, radiance, radiance_range, channel, data_quality_best, data_quality_enough,
+                data_quality_worst, landfrac_threshold, landfrac_threshold_is_max, cloud_cover_threshold,
+                cloud_cover_threshold_is_max, all_spots_avg_threshold, all_spots_avg_threshold_is_max, noise_amp,
+                dust_flag_no_dust, dust_flag_single_fov, dust_flag_detected, examine_wavenumber_mode, selected_wavenumber,
+                scanang, inside_scanang, solzen_threshold, solzen_is_max
+            )
+
+        except KeyError as e:
+            print("Check your input JSON file, and make sure {} is specified there.".format(e))
+            exit(1)

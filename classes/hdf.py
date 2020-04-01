@@ -83,7 +83,8 @@ class HDFFilter(object):
                  data_quality_worst, landfrac_threshold, landfrac_threshold_is_max, cloud_cover_threshold,
                  cloud_cover_threshold_is_max, all_spots_avg_threshold, all_spots_avg_threshold_is_max, noise_amp,
                  dust_flag_no_dust, dust_flag_single_fov, dust_flag_detected, examine_wavenumber_mode,
-                 selected_wavenumber, scanang, inside_scanang, solzen_threshold, solzen_is_max):
+                 selected_wavenumber, scanang, inside_scanang, solzen_threshold, solzen_is_max, min_lat, max_lat,
+                 min_lon, max_lon):
         self.use_radiance_filters = use_radiance_filters
         self.radiance = radiance
         self.radiance_range = radiance_range
@@ -107,6 +108,10 @@ class HDFFilter(object):
         self.inside_scanang = inside_scanang
         self.solzen_threshold = solzen_threshold
         self.solzen_is_max = solzen_is_max
+        self.min_lat = min_lat
+        self.max_lat = max_lat
+        self.min_lon = min_lon
+        self.max_lon = max_lon
 
 
 class HDFStorage(object):

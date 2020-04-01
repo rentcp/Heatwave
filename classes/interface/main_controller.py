@@ -225,6 +225,10 @@ class MainController(object):
         inside_scanang = data['inside_scanang']  # bool
         solzen_threshold = float(data['solzen_threshold'])
         solzen_is_max = data['solzen_is_max']  # bool
+        min_lat = data['min_latitude']
+        max_lat = data['max_latitude']
+        min_lon = data['min_longitude']
+        max_lon = data['max_longitude']
 
         noise_amp = data['noise_amp']  # bool
         radiance = None
@@ -235,5 +239,5 @@ class MainController(object):
             data_quality_worst, landfrac_threshold, landfrac_threshold_is_max, cloud_cover_threshold,
             cloud_cover_threshold_is_max, all_spots_avg_threshold, all_spots_avg_threshold_is_max, noise_amp,
             dust_flag_no_dust, dust_flag_single_fov, dust_flag_detected, examine_wavenumber_mode, selected_wavenumber,
-            scanang, inside_scanang, solzen_threshold, solzen_is_max
+            scanang, inside_scanang, solzen_threshold, solzen_is_max, min_lat, max_lat, min_lon, max_lon
         )

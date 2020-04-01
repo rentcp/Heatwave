@@ -21,4 +21,3 @@ class SessionWithHeaderRedirection(requests.Session):
             if original != redirect and redirect != self.AUTH_HOST and original != self.AUTH_HOST:
                 del headers['Authorization']
         return
-

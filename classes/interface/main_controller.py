@@ -240,5 +240,5 @@ class MainController(object):
             )
 
         except KeyError as e:
-            print("Check your input JSON file, and make sure {} is specified there.".format(e))
+            print("A setting is missing. Check your input JSON file, and make sure {} is specified there.".format(e))
             exit(1)

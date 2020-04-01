@@ -41,15 +41,16 @@ In Fedora / CentOS / RHEL, it can be found in the 'hdf-devel' package, e.g.:
 sudo dnf install hdf-devel
 ```
 
+Otherwise, the library must be compiled from [source](https://support.hdfgroup.org/products/hdf4/).
+
+
 Then, install pyhdf within an Anaconda virtual environment:
 ```
 conda install -c conda-forge pyhdf
 ```
 
-Otherwise, the library must be compiled from [source](https://support.hdfgroup.org/products/hdf4/).
 
-
-Then, the rest of the requirements can be installed with:
+Finally, the rest of the requirements can be installed with:
 
 ```
 pip install -r requirements/common.txt

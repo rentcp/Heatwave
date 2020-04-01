@@ -93,7 +93,6 @@ class MainController(object):
         keys = []
         color_code = 0
         for key, group in grouped:
-
             # format date nicely for plot
             key = key.strftime("%B %Y")
 
@@ -102,9 +101,9 @@ class MainController(object):
             color_code += 1
 
         title = (
-            'Average Radiances for Similarly Bright Curves at \n'
-            '%s mW/m$^2$/sr/cm$^{-1}$ $\pm$%s mW at %s cm$^{-1}$'
-        ) % (data['radiance'], data['radiance_range'], CHANNELS_TO_WAVELENGTHS[data['channel']])
+                    'Average Radiances for Similarly Bright Curves at \n'
+                    '%s mW/m$^2$/sr/cm$^{-1}$ $\pm$%s mW at %s cm$^{-1}$'
+                ) % (data['radiance'], data['radiance_range'], CHANNELS_TO_WAVELENGTHS[data['channel']])
 
         ax.set(
             xlabel=r'wavelength (cm$^{-1}$)',
@@ -136,7 +135,7 @@ class MainController(object):
 
             day_of_year = int(datetime.strftime(datetime(year, month, day), '%j'))
 
-            result.append(Granule(year,  day_of_year, granule_number, os.path.join(data_directory, filename)))
+            result.append(Granule(year, day_of_year, granule_number, os.path.join(data_directory, filename)))
 
         return result
 

@@ -28,7 +28,6 @@ from requests.exceptions import ConnectionError
 from classes._http import SessionWithHeaderRedirection
 from classes.calculate_GCA import calculate_gca_for_files_and_zip
 
-
 THREADS = 13
 
 DAY_PATTERN = re.compile(r'href=["\'](\d{3})/["\']', re.MULTILINE)
@@ -50,19 +49,19 @@ def get_html(http_client, url, count=0, echo=False):
             print('ERROR: Max retries exceeded for url %s' % url)
             return None
     except NewConnectionError as e:
-        print('NewConnectionError caught in get_html, retrying ({} of {})...'.format(count+1, 10))
+        print('NewConnectionError caught in get_html, retrying ({} of {})...'.format(count + 1, 10))
         sleep(.5)
         count += 1
     except ConnectionError as e:
-        print('ConnectionError caught in get_html, retrying ({} of {})...'.format(count+1, 10))
+        print('ConnectionError caught in get_html, retrying ({} of {})...'.format(count + 1, 10))
         sleep(.5)
         count += 1
     except MaxRetryError as e:
-        print('MaxRetryError caught in get_html, retrying ({} of {})...'.format(count+1, 10))
+        print('MaxRetryError caught in get_html, retrying ({} of {})...'.format(count + 1, 10))
         sleep(.5)
         count += 1
     except TimeoutError as e:
-        print('TimeoutError caught in get_html, retrying ({} of {})...'.format(count+1, 10))
+        print('TimeoutError caught in get_html, retrying ({} of {})...'.format(count + 1, 10))
         sleep(2)
         count += 1
 
@@ -159,10 +158,10 @@ if __name__ == '__main__':
             ]
     print('From which URL do you want to get AIRS data? Choose one, or input a custom URL.')
     for i in range(len(urls)):
-        print('{}: {}'.format(i+1, urls[i]))
+        print('{}: {}'.format(i + 1, urls[i]))
     chosen_url = input('URL or option: ')
     try:
-        BASE_URL = urls[int(chosen_url)-1]
+        BASE_URL = urls[int(chosen_url) - 1]
     except ValueError:
         BASE_URL = chosen_url
     print('Chosen URL: {}'.format(BASE_URL))

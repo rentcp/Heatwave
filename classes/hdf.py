@@ -363,8 +363,8 @@ def extract_granule_dataset(granule, hdf_filter: HDFFilter):
 
 def filter_dataset(df: pd.DataFrame, radiances: pd.DataFrame, radiances_quality: pd.DataFrame, hdf_filter: HDFFilter):
     # Pre-filter data to only include data points within lat/lon specification
-    prefilter_geo_condition = (df.latitude >= hdf_filter.min_lat) & (df.latitude <= hdf_filter.max_lat)
-    prefilter_geo_condition &= (df.longitude >= hdf_filter.min_lon) & (df.longitude <= hdf_filter.max_lon)
+    prefilter_geo_condition = (df.latitude >= hdf_filter.min_lat) & (df.latitude < hdf_filter.max_lat)
+    prefilter_geo_condition &= (df.longitude >= hdf_filter.min_lon) & (df.longitude < hdf_filter.max_lon)
     radiances = radiances[prefilter_geo_condition]
 
     # start counting amount of data points removed by filters

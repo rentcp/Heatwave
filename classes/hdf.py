@@ -320,6 +320,7 @@ def extract_granule_dataset(granule, hdf_filter: HDFFilter):
     all_spots = pd.DataFrame(data.select('all_spots_avg').get())
     final_noise_amp = pd.DataFrame(data.select('CCfinal_Noise_Amp').get())
     latitude = pd.DataFrame(data.select('Latitude').get())
+    longitude = pd.DataFrame(data.select('Longitude').get())
     scanang = pd.DataFrame(data.select('scanang').get())
     solzen = pd.DataFrame(data.select('solzen').get())
 
@@ -343,6 +344,7 @@ def extract_granule_dataset(granule, hdf_filter: HDFFilter):
         'cloud_cover': cloud_cover,
         'all_spots': all_spots,
         'latitude': latitude,
+        'longitude': longitude,
         'scanang': scanang,
         'solzen': solzen
     }
@@ -360,6 +362,11 @@ def extract_granule_dataset(granule, hdf_filter: HDFFilter):
 
 
 def filter_dataset(df: pd.DataFrame, radiances: pd.DataFrame, radiances_quality: pd.DataFrame, hdf_filter: HDFFilter):
+    # Pre-filter data to only include data points within lat/lon specification
+    prefilter_geo_condition = (df.latitude >= hdf_filter.min_lat) & (df.latitude <= hdf_filter.max_lat)
+    prefilter_geo_condition &= (df.longitude >= hdf_filter.min_lon) & (df.longitude <= hdf_filter.max_lon)
+    radiances = radiances[prefilter_geo_condition]
+
     # start counting amount of data points removed by filters
     num_data_points = radiances.count().sum()
     num_filtered_total = 0

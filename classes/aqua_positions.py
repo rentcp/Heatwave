@@ -37,37 +37,66 @@ def calculate_lat_lon_filter_condition(data, min_lat, max_lat, min_lon, max_lon,
     longitude_condition = (data.lon >= min_lon) & (data.lon < max_lon)
 
     # special logic for meridian setting
+    special_meridian_logic = False
     if not ((lon_naively_contains_zero and include_prime_meridian) or
             (not lon_naively_contains_zero and not include_prime_meridian)):
         # take from the complement of the usual longitude slice
         longitude_condition = (data.lon < min_lon) | (data.lon >= max_lon)
+        special_meridian_logic = True
 
     # Expand search area longitude further near the poles
     if is_search_area:
         # 1st tier, +/- 10 degrees at absolute latitude < 60
-        longitude_condition |= (
-            (data.lon >= normalize_longitude_arithmetic(min_lon - 10))
-            &
-            (data.lon < normalize_longitude_arithmetic(max_lon + 10))
-            &
-            ((data.lat > -60) & (data.lat < 60))
-        )
+        if special_meridian_logic:
+            longitude_condition |= (
+                (data.lon < normalize_longitude_arithmetic(min_lon - 10))
+                |
+                (data.lon >= normalize_longitude_arithmetic(max_lon + 10))
+                &
+                ((data.lat > -60) & (data.lat < 60))
+            )
+        else:
+            longitude_condition |= (
+                (data.lon >= normalize_longitude_arithmetic(min_lon - 10))
+                &
+                (data.lon < normalize_longitude_arithmetic(max_lon + 10))
+                &
+                ((data.lat > -60) & (data.lat < 60))
+            )
         # 2nd tier, +/- 25 degrees at 60-70 absolute latitude
-        longitude_condition |= (
-            (data.lon >= normalize_longitude_arithmetic(min_lon - 25))
-            &
-            (data.lon < normalize_longitude_arithmetic(max_lon + 25))
-            &
-            ((data.lat <= -60) | (data.lat >= 60))
-        )
+        if special_meridian_logic:
+            longitude_condition |= (
+                (data.lon < normalize_longitude_arithmetic(min_lon - 25))
+                |
+                (data.lon >= normalize_longitude_arithmetic(max_lon + 25))
+                &
+                ((data.lat <= -60) | (data.lat >= 60))
+            )
+        else:
+            longitude_condition |= (
+                (data.lon >= normalize_longitude_arithmetic(min_lon - 25))
+                &
+                (data.lon < normalize_longitude_arithmetic(max_lon + 25))
+                &
+                ((data.lat <= -60) | (data.lat >= 60))
+            )
         # 3rd tier, +/- 45 degrees at 70-80 absolute latitude
-        longitude_condition |= (
-            (data.lon >= normalize_longitude_arithmetic(min_lon - 45))
-            &
-            (data.lon < normalize_longitude_arithmetic(max_lon + 45))
-            &
-            ((data.lat <= -70) | (data.lat >= 70))
-        )
+        if special_meridian_logic:
+            longitude_condition |= (
+                (data.lon < normalize_longitude_arithmetic(min_lon - 45))
+                |
+                (data.lon >= normalize_longitude_arithmetic(max_lon + 45))
+                &
+                ((data.lat <= -70) | (data.lat >= 70))
+            )
+        else:
+            longitude_condition |= (
+                (data.lon >= normalize_longitude_arithmetic(min_lon - 45))
+                &
+                (data.lon < normalize_longitude_arithmetic(max_lon + 45))
+                &
+                ((data.lat <= -70) | (data.lat >= 70))
+            )
         # 4th tier, all longitudes at absolute longitude > 80
         longitude_condition |= (
             ((data.lat <= -80) | (data.lat >= 80))

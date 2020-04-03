@@ -97,7 +97,7 @@ def calculate_lat_lon_filter_condition(data, min_lat, max_lat, min_lon, max_lon,
                 &
                 ((data.lat <= -70) | (data.lat >= 70))
             )
-        # 4th tier, all longitudes at absolute longitude > 80
+        # 4th tier, all longitudes at absolute latitude > 80
         longitude_condition |= (
             ((data.lat <= -80) | (data.lat >= 80))
         )

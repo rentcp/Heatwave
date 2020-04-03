@@ -22,12 +22,11 @@ def calculate_lat_lon_filter_condition(data, min_lat, max_lat, min_lon, max_lon,
 
     # Handle special logic for expanded search area
     if is_search_area:
-        min_lat = normalize_latitude_arithmetic(min_lat - 10)
-        max_lat = normalize_latitude_arithmetic(max_lat + 10)
-        min_lon = normalize_longitude_arithmetic(min_lon - 10)
-        max_lon = normalize_longitude_arithmetic(max_lon + 10)
-
-    latitude_condition = (data.lat >= min_lat) & (data.lat < max_lat)
+        search_min_lat = normalize_latitude_arithmetic(min_lat - 10)
+        search_max_lat = normalize_latitude_arithmetic(max_lat + 10)
+        latitude_condition = (data.lat >= search_min_lat) & (data.lat < search_max_lat)
+    else:
+        latitude_condition = (data.lat >= min_lat) & (data.lat < max_lat)
 
     # include longitudes within the specified range considering whether or not the prime meridian is included
     lon_naively_contains_zero = (min_lon <= 0 <= max_lon)
@@ -35,6 +34,14 @@ def calculate_lat_lon_filter_condition(data, min_lat, max_lat, min_lon, max_lon,
 
     # Expand search area longitude further near the poles
     if is_search_area:
+        # 1st tier, +/- 10 degrees at absolute latitude < 60
+        longitude_condition = (
+            (data.lon >= normalize_longitude_arithmetic(min_lon - 10))
+            &
+            (data.lon < normalize_longitude_arithmetic(max_lon + 10))
+            &
+            ((data.lat > -60) & (data.lat < 60))
+        )
         # 2nd tier, +/- 25 degrees at 60-70 absolute latitude
         longitude_condition |= (
             (data.lon >= normalize_longitude_arithmetic(min_lon - 25))

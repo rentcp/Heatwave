@@ -229,6 +229,7 @@ class MainController(object):
         max_lat = data['max_latitude']
         min_lon = data['min_longitude']
         max_lon = data['max_longitude']
+        include_prime_meridian = data['include_prime_meridian']
 
         noise_amp = data['noise_amp']  # bool
         radiance = None
@@ -239,5 +240,6 @@ class MainController(object):
             data_quality_worst, landfrac_threshold, landfrac_threshold_is_max, cloud_cover_threshold,
             cloud_cover_threshold_is_max, all_spots_avg_threshold, all_spots_avg_threshold_is_max, noise_amp,
             dust_flag_no_dust, dust_flag_single_fov, dust_flag_detected, examine_wavenumber_mode, selected_wavenumber,
-            scanang, inside_scanang, solzen_threshold, solzen_is_max, min_lat, max_lat, min_lon, max_lon
+            scanang, inside_scanang, solzen_threshold, solzen_is_max, min_lat, max_lat, min_lon, max_lon,
+            include_prime_meridian
         )

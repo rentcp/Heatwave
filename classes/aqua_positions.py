@@ -6,7 +6,23 @@ import pandas
 BASE_URL = 'https://airsl2.gesdisc.eosdis.nasa.gov/data/Aqua_AIRS_Level2/AIRS2CCF.006/'
 
 
+def calculate_longitude_filter_condition(data, min_longitude, max_longitude, include_prime_meridian,
+                                         is_search_area):
+    # include longitudes within the specified range considering whether or not the prime meridian is included
+    lon_naively_contains_zero = (min_longitude <= 0 <= max_longitude)
+    longitude_condition = (data.lon >= min_longitude) & (data.lon <= max_longitude)
+
+    # special logic for meridian setting
+    if not ((lon_naively_contains_zero and include_prime_meridian) or
+            (not lon_naively_contains_zero and not include_prime_meridian)):
+        # take from the complement of the usual longitude slice
+        longitude_condition = (data.lon <= min_longitude) | (data.lon >= max_longitude)
+
+    return longitude_condition
+
+
 class AquaPositions(object):
+
     def get_hdf_urls(self, start_granule, end_granule, min_latitude, min_longitude, max_latitude, max_longitude,
                      include_prime_meridian, min_gca, test_hdf_output):
         min_year, max_year = start_granule.year, end_granule.year
@@ -21,25 +37,18 @@ class AquaPositions(object):
         )
 
         condition = (
-            (data.lat >= min_latitude) & (data.lat <= max_latitude)
+                (data.lat >= min_latitude) & (data.lat <= max_latitude)
         )
 
-        # include longitudes within the specified range considering whether or not the prime meridian is included
-        lon_naively_contains_zero = (min_longitude <= 0 and max_longitude >= 0)
-        longitude_condition = (data.lon >= min_longitude) & (data.lon <= max_longitude)
-
-        # special logic for meridian setting
-        if not ((lon_naively_contains_zero and include_prime_meridian) or
-                (not lon_naively_contains_zero and not include_prime_meridian)):
-            # take from the complement of the usual longitude slice
-            longitude_condition = (data.lon <= min_longitude) | (data.lon >= max_longitude)
+        longitude_condition = calculate_longitude_filter_condition(data, min_longitude, max_longitude,
+                                                                   include_prime_meridian, is_search_area=True)
 
         condition &= longitude_condition
 
         # granule times must be within the specified range - this can be calculated against the granule numbers
         if end_granule.granule_number >= start_granule.granule_number:
             condition &= (
-                (data.granule >= start_granule.granule_number) & (data.granule <= end_granule.granule_number)
+                    (data.granule >= start_granule.granule_number) & (data.granule <= end_granule.granule_number)
             )
         else:
             condition &= (

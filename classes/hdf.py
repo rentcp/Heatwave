@@ -365,6 +365,7 @@ def extract_granule_dataset(granule, hdf_filter: HDFFilter):
 
 def filter_dataset(df: pd.DataFrame, radiances: pd.DataFrame, radiances_quality: pd.DataFrame, hdf_filter: HDFFilter):
     # Pre-filter data to only include data points within lat/lon specification
+    df = df.rename(columns={'latitude': 'lat', 'longitude': 'lon'})
     prefilter_geo_condition = calculate_lat_lon_filter_condition(df, hdf_filter.min_lat, hdf_filter.max_lat,
                                                                  hdf_filter.min_lon, hdf_filter.max_lon,
                                                                  hdf_filter.include_prime_meridian,
@@ -383,24 +384,24 @@ def filter_dataset(df: pd.DataFrame, radiances: pd.DataFrame, radiances_quality:
             print("ERROR: Invalid wavenumber selected: " + str(hdf_filter.selected_wavenumber))
 
     radiances_by_latitude_mask = {
-        '-90to-80': (df.latitude >= -90) & (df.latitude < -80),
-        '-80to-70': (df.latitude >= -80) & (df.latitude < -70),
-        '-70to-60': (df.latitude >= -70) & (df.latitude < -60),
-        '-60to-50': (df.latitude >= -60) & (df.latitude < -50),
-        '-50to-40': (df.latitude >= -50) & (df.latitude < -40),
-        '-40to-30': (df.latitude >= -40) & (df.latitude < -30),
-        '-30to-20': (df.latitude >= -30) & (df.latitude < -20),
-        '-20to-10': (df.latitude >= -20) & (df.latitude < -10),
-        '-10to0': (df.latitude >= -10) & (df.latitude < 0),
-        '0to10': (df.latitude >= 0) & (df.latitude <= 10),
-        '10to20': (df.latitude > 10) & (df.latitude <= 20),
-        '20to30': (df.latitude > 20) & (df.latitude <= 30),
-        '30to40': (df.latitude > 30) & (df.latitude <= 40),
-        '40to50': (df.latitude > 40) & (df.latitude <= 50),
-        '50to60': (df.latitude > 50) & (df.latitude <= 60),
-        '60to70': (df.latitude > 60) & (df.latitude <= 70),
-        '70to80': (df.latitude > 70) & (df.latitude <= 80),
-        '80to90': (df.latitude > 80) & (df.latitude <= 90)
+        '-90to-80': (df.lat >= -90) & (df.lat < -80),
+        '-80to-70': (df.lat >= -80) & (df.lat < -70),
+        '-70to-60': (df.lat >= -70) & (df.lat < -60),
+        '-60to-50': (df.lat >= -60) & (df.lat < -50),
+        '-50to-40': (df.lat >= -50) & (df.lat < -40),
+        '-40to-30': (df.lat >= -40) & (df.lat < -30),
+        '-30to-20': (df.lat >= -30) & (df.lat < -20),
+        '-20to-10': (df.lat >= -20) & (df.lat < -10),
+        '-10to0': (df.lat >= -10) & (df.lat < 0),
+        '0to10': (df.lat >= 0) & (df.lat <= 10),
+        '10to20': (df.lat > 10) & (df.lat <= 20),
+        '20to30': (df.lat > 20) & (df.lat <= 30),
+        '30to40': (df.lat > 30) & (df.lat <= 40),
+        '40to50': (df.lat > 40) & (df.lat <= 50),
+        '50to60': (df.lat > 50) & (df.lat <= 60),
+        '60to70': (df.lat > 60) & (df.lat <= 70),
+        '70to80': (df.lat > 70) & (df.lat <= 80),
+        '80to90': (df.lat > 80) & (df.lat <= 90)
     }
 
     # max landFrac

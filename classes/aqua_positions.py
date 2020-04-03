@@ -10,13 +10,13 @@ def calculate_longitude_filter_condition(data, min_longitude, max_longitude, inc
                                          is_search_area):
     # include longitudes within the specified range considering whether or not the prime meridian is included
     lon_naively_contains_zero = (min_longitude <= 0 <= max_longitude)
-    longitude_condition = (data.lon >= min_longitude) & (data.lon <= max_longitude)
+    longitude_condition = (data.lon >= min_longitude) & (data.lon < max_longitude)
 
     # special logic for meridian setting
     if not ((lon_naively_contains_zero and include_prime_meridian) or
             (not lon_naively_contains_zero and not include_prime_meridian)):
         # take from the complement of the usual longitude slice
-        longitude_condition = (data.lon <= min_longitude) | (data.lon >= max_longitude)
+        longitude_condition = (data.lon < min_longitude) | (data.lon >= max_longitude)
 
     return longitude_condition
 

@@ -32,10 +32,16 @@ def calculate_lat_lon_filter_condition(data, min_lat, max_lat, min_lon, max_lon,
     lon_naively_contains_zero = (min_lon <= 0 <= max_lon)
     longitude_condition = (data.lon >= min_lon) & (data.lon < max_lon)
 
+    # special logic for meridian setting
+    if not ((lon_naively_contains_zero and include_prime_meridian) or
+            (not lon_naively_contains_zero and not include_prime_meridian)):
+        # take from the complement of the usual longitude slice
+        longitude_condition = ~longitude_condition
+
     # Expand search area longitude further near the poles
     if is_search_area:
         # 1st tier, +/- 10 degrees at absolute latitude < 60
-        longitude_condition = (
+        longitude_condition |= (
             (data.lon >= normalize_longitude_arithmetic(min_lon - 10))
             &
             (data.lon < normalize_longitude_arithmetic(max_lon + 10))
@@ -62,12 +68,6 @@ def calculate_lat_lon_filter_condition(data, min_lat, max_lat, min_lon, max_lon,
         longitude_condition |= (
             ((data.lat <= -80) | (data.lat >= 80))
         )
-
-    # special logic for meridian setting
-    if not ((lon_naively_contains_zero and include_prime_meridian) or
-            (not lon_naively_contains_zero and not include_prime_meridian)):
-        # take from the complement of the usual longitude slice
-        longitude_condition = ~longitude_condition
 
     geo_condition = latitude_condition & longitude_condition
 

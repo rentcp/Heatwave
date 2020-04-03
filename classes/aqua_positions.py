@@ -14,11 +14,15 @@ def calculate_lat_lon_filter_condition(data, min_lat, max_lat, min_lon, max_lon,
         if latitude > 90:
             return 90
 
+        return latitude
+
     def normalize_longitude_arithmetic(longitude):
         if longitude < -180:
             return longitude % 180
         if longitude > 180:
             return -180 + (longitude % 180)
+
+        return longitude
 
     # Handle special logic for expanded search area
     if is_search_area:

@@ -8,17 +8,59 @@ BASE_URL = 'https://airsl2.gesdisc.eosdis.nasa.gov/data/Aqua_AIRS_Level2/AIRS2CC
 
 def calculate_lat_lon_filter_condition(data, min_lat, max_lat, min_lon, max_lon, include_prime_meridian,
                                        is_search_area):
+    def normalize_latitude_arithmetic(latitude):
+        if latitude < -90:
+            return -90
+        if latitude > 90:
+            return 90
+
+    def normalize_longitude_arithmetic(longitude):
+        if longitude < -180:
+            return longitude % 180
+        if longitude > 180:
+            return -180 + (longitude % 180)
+
+    # Handle special logic for expanded search area
+    if is_search_area:
+        min_lat = normalize_latitude_arithmetic(min_lat - 10)
+        max_lat = normalize_latitude_arithmetic(max_lat + 10)
+        min_lon = normalize_longitude_arithmetic(min_lon - 10)
+        max_lon = normalize_longitude_arithmetic(max_lon + 10)
+
     latitude_condition = (data.lat >= min_lat) & (data.lat < max_lat)
 
     # include longitudes within the specified range considering whether or not the prime meridian is included
     lon_naively_contains_zero = (min_lon <= 0 <= max_lon)
     longitude_condition = (data.lon >= min_lon) & (data.lon < max_lon)
 
+    # Expand search area longitude further near the poles
+    if is_search_area:
+        # 2nd tier, +/- 25 degrees at 60-70 absolute latitude
+        longitude_condition |= (
+            (data.lon >= normalize_longitude_arithmetic(min_lon - 25))
+            &
+            (data.lon < normalize_longitude_arithmetic(max_lon + 25))
+            &
+            ((data.lat <= -60) | (data.lat >= 60))
+        )
+        # 3rd tier, +/- 45 degrees at 70-80 absolute latitude
+        longitude_condition |= (
+            (data.lon >= normalize_longitude_arithmetic(min_lon - 45))
+            &
+            (data.lon < normalize_longitude_arithmetic(max_lon + 45))
+            &
+            ((data.lat <= -70) | (data.lat >= 70))
+        )
+        # 4th tier, all longitudes at absolute longitude > 80
+        longitude_condition |= (
+            ((data.lat <= -80) | (data.lat >= 80))
+        )
+
     # special logic for meridian setting
     if not ((lon_naively_contains_zero and include_prime_meridian) or
             (not lon_naively_contains_zero and not include_prime_meridian)):
         # take from the complement of the usual longitude slice
-        longitude_condition = (data.lon < min_lon) | (data.lon >= max_lon)
+        longitude_condition = ~longitude_condition
 
     geo_condition = latitude_condition & longitude_condition
 

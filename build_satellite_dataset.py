@@ -15,23 +15,21 @@ all available days and kernels have been parsed would also be interesting.
 One doesn't need to use this script unless rebuilding the data/ files from scratch, or in the event that additional
 dates/kernels are made available.
 """
-
+import datetime
 import re
 import os
 from getpass import getpass
 from time import sleep
+from tqdm import tqdm
 from multiprocessing.pool import ThreadPool as Pool
 
 from urllib3.exceptions import NewConnectionError, MaxRetryError
 from requests.exceptions import ConnectionError
 from classes._http import SessionWithHeaderRedirection
+from classes.calculate_GCA import calculate_gca_for_files_and_zip
 
-
-STARTING_YEAR = 2019
-ENDING_YEAR = 2019
 
 THREADS = 13
-BASE_URL = "https://airsl2.gesdisc.eosdis.nasa.gov/data/Aqua_AIRS_Level2/AIRS2CCF.006/"
 
 DAY_PATTERN = re.compile(r'href=["\'](\d{3})/["\']', re.MULTILINE)
 XML_FILENAME_PATTERN = re.compile(
@@ -52,20 +50,20 @@ def get_html(http_client, url, count=0, echo=False):
             print('ERROR: Max retries exceeded for url %s' % url)
             return None
     except NewConnectionError as e:
-        print(e)
+        print('NewConnectionError caught in get_html, retrying ({} of {})...'.format(count+1, 10))
         sleep(.5)
         count += 1
     except ConnectionError as e:
-        print(e)
+        print('ConnectionError caught in get_html, retrying ({} of {})...'.format(count+1, 10))
         sleep(.5)
         count += 1
     except MaxRetryError as e:
-        print(e)
+        print('MaxRetryError caught in get_html, retrying ({} of {})...'.format(count+1, 10))
         sleep(.5)
         count += 1
     except TimeoutError as e:
+        print('TimeoutError caught in get_html, retrying ({} of {})...'.format(count+1, 10))
         sleep(2)
-        print('Timeout error: %s' % e)
         count += 1
 
     return get_html(http_client, url, count)
@@ -99,7 +97,10 @@ def get_information_from_xml(period, files):
         max_retries = 500
         num_retries = 0
         while not finished:
-            for filename in files:
+            desc = 'day {}'.format(_day)
+            if num_retries != 0:
+                desc = 'day {} (retry #{})'.format(_day, num_retries)
+            for filename in tqdm(files, desc='day {}'.format(_day)):
                 url = "%s/%s/%s/%s" % (BASE_URL, _year, _day, filename)
                 xml = get_html(http_client, url)
                 _kernel = filename.split('.')[4]
@@ -111,15 +112,17 @@ def get_information_from_xml(period, files):
                     _latitude = int(re.findall(XML_LAT, xml)[0])
 
                     _positions.append((_year, _day, _kernel, _latitude, _longitude, filename.replace('.xml', '')))
-                    print('    - Read %s/%s/%s' % (_year, _day, _kernel))
+                    # print('    - Read %s/%s/%s' % (_year, _day, _kernel))
                 except IndexError as e:
-                    print("Error encountered, attempting to retry. %s" % e)
+                    print("Error encountered, will retry.")
                     failed_kernel_files.append(filename)
                     # print('[get_information_from_xml] INDEX ERROR FOR %s/%s/%s: %s' % (_year, _day, filename, e))
                     # with open(os.path.join(output_dir, '%s-%s-%s.err' % (_year, _day, _kernel)), 'w') as err_file:
                     #     err_file.write(xml)
                 except Exception as e:
                     print('[get_information_from_xml] GENERIC ERROR FOR %s/%s/%s: %s' % (_year, _day, filename, e))
+                    print('Error encountered, will retry.')
+                    failed_kernel_files.append(filename)
 
             if not failed_kernel_files:
                 finished = True
@@ -132,7 +135,6 @@ def get_information_from_xml(period, files):
                     err_file.write("")
             else:
                 num_retries += 1
-                print("Retrying failed kernel files. Retry {}...".format(num_retries))
                 files = failed_kernel_files
                 failed_kernel_files = []
 
@@ -142,7 +144,33 @@ def get_information_from_xml(period, files):
 if __name__ == '__main__':
     user_name = input('Username for GESDISC/Earthdata Login: ')
     password = getpass()
-    output_dir = input('Output path: ')
+    STARTING_YEAR = int(input('Start year: '))
+    current_year = datetime.datetime.now().year
+    if not 2002 <= STARTING_YEAR <= current_year:
+        print('Start year must be between 2002 and the present.')
+        exit(1)
+    ENDING_YEAR = int(input('End year: '))
+    if not 2002 <= ENDING_YEAR <= current_year:
+        print('End year must be between 2002 and the present.')
+        exit(1)
+    urls = ["https://airsl2.gesdisc.eosdis.nasa.gov/data/Aqua_AIRS_Level2/AIRS2CCF.006/",
+            "https://airsl2.gesdisc.eosdis.nasa.gov/data/Aqua_AIRS_Level2/AIRI2CCF.006/",
+            "https://airsl1.gesdisc.eosdis.nasa.gov/data/Aqua_AIRS_Level1/AIRIBRAD.005/"
+            ]
+    print('From which URL do you want to get AIRS data? Choose one, or input a custom URL.')
+    for i in range(len(urls)):
+        print('{}: {}'.format(i+1, urls[i]))
+    chosen_url = input('URL or option: ')
+    try:
+        BASE_URL = urls[int(chosen_url)-1]
+    except ValueError:
+        BASE_URL = chosen_url
+    print('Chosen URL: {}'.format(BASE_URL))
+    output_dir = ''
+    while output_dir == '' or not os.path.exists(output_dir):
+        output_dir = input('Output path: ')
+        if not os.path.exists(output_dir):
+            print('This does not seem to be a valid path. Use an absolute or relative path to an existing directory:')
 
     years_range = list(range(STARTING_YEAR, ENDING_YEAR + 1))
 
@@ -162,6 +190,11 @@ if __name__ == '__main__':
 
     print('Getting links for the relevant XML files...')
 
+    current_datetime = datetime.datetime.now()
+    date = str(current_datetime.date())
+    timestamp = str(current_datetime.timestamp())
+    temp_directory_name = 'temp_{}'.format(date + timestamp)
+    os.makedirs(temp_directory_name)
     xml_mapping = dict()
     for year in years_range:
         # Get these XML files with fewer threads so as to ensure that NONE of this data is dropped
@@ -182,8 +215,11 @@ if __name__ == '__main__':
         print('\n')
         sleep(3)
 
-        print('Extracting data from XML content for %s...' % year)
+        print('Extracting data from XML content for {} ({} days to process, using {} threads)...'.format(year,
+                                                                                                         len(mapping),
+                                                                                                         THREADS))
         # grab each xml file and extract coordinates, BoundingRectangle, AIRSRunTag
+        dropped_data = False
 
         with Pool(processes=THREADS) as pool:
             mapping = filter(lambda x: x[0][0] == year, xml_mapping)
@@ -193,17 +229,32 @@ if __name__ == '__main__':
 
             # [[_year, _day, _kernel, _latitude, _longitude, hdf_filename], ...]
             positions = position_results.get()
-            with open(os.path.join(output_dir, 'aqua_positions_%s.csv' % year), 'w') as output_file:
+            with open(os.path.join(temp_directory_name, 'aqua_positions_%s.csv' % year), 'w') as output_file:
                 output_file.write('year,day,kernel,lat,lon,hdf_filename\n')
                 for resulting_groups in positions:
-                    for position in resulting_groups:
+                    for position in tqdm(resulting_groups, desc='Writing data'):
                         if position is not None:
                             output_file.write('%s,%s,%s,%s,%s,%s\n' % position)
-                            print('    - Wrote %s/%s/%s' % position[:3])
+                            # print('    - Wrote %s/%s/%s' % position[:3])
                         else:
+                            dropped_data = True
                             print('MISSING DATA FOR WRITE')
 
         print('%s finished' % year)
+        if not dropped_data:
+            print('✔️  No data dropped')
+        else:
+            print('❌  Some data was dropped!')
+            positive_responses = ['y', 'Y']
+            negative_responses = ['n', 'N']
+            cancel = ''
+            while cancel not in positive_responses and cancel not in negative_responses:
+                cancel = input('Cancel process? Y/N: ')
+            if cancel in positive_responses:
+                exit(0)
         sleep(5)
 
     print('\n---------- Process finished ----------\n')
+
+    # Begin doing GCA calculation
+    calculate_gca_for_files_and_zip(temp_directory_name, output_dir)

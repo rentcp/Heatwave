@@ -5,10 +5,13 @@ A Python Analysis CLI Tool designed for Aqua AIRS `.hdf` files
 Commissioned by Chris Rentsch 
 
 
-### Getting Started
+
+**Getting Started (Windows)**
+
 1. Install Anaconda
 2. Start an Anaconda Prompt
 3. Install dependencies:
+
 
 ```
 conda install py-hdf -c conda-forge
@@ -18,12 +21,40 @@ pip install asciimatics
 pip install pytest-randomly
 conda install matplotlib
 conda install pandas
+=======
+>>>conda install py-hdf -c conda-forge
+
+>>>conda install requests
+
+>>>conda install pytest
+
+>>>pip install asciimatics
+
+>>>pip install pytest-randomly
+
+>>>conda install matplotlib
+
+>>>conda install pandas
+
+
+**Getting Started (Linux)**
+
+Most dependencies can be installed with pip, but HDF4 packages must be installed separately.
+
+```
+sudo apt install libhdf4-dev
+conda install -c conda-forge pyhdf
 ```
 
-### Example execution
+Then, the rest of the requirements can be installed with:
+
 ```
-python cli.py
+pip install -r requirements/common.txt
 ```
+
+
+**Example execution**
+>>>>python cli.py
 
 The program will display the list of inputs required, their ranges, and their "<" versus "<=" distinctions.
 Use a text editor to set preferred parameters in example.json (you can name this anything.json)

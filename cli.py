@@ -142,7 +142,7 @@ def main():
                 if next_month == 0:
                     next_month = 12
 
-                if i is not 0:  # Leave the start date intact for the first batch
+                if i != 0:  # Leave the start date intact for the first batch
                     # This batch will start on the first day of the i'th month
                     batch['date_range_start'] = date(current_year, current_month, 1)
 

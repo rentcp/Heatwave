@@ -17,7 +17,7 @@ class AquaPositions(object):
         ]
 
         data = pandas.concat(
-            (pandas.read_csv(filename) for filename in data_files)
+            (pandas.read_csv(filename) for filename in data_files), sort=True
         )
 
         condition = (

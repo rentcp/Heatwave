@@ -142,7 +142,7 @@ def main():
                 if next_month == 0:
                     next_month = 12
 
-                if i is not 0:  # Leave the start date intact for the first batch
+                if i != 0:  # Leave the start date intact for the first batch
                     # This batch will start on the first day of the i'th month
                     batch['date_range_start'] = date(current_year, current_month, 1)
 
@@ -224,6 +224,7 @@ def main():
             combined_stats_csv = concat([read_csv(f) for f in stats_filenames])
             combined_csv = combined_csv.sort_values(by=['period', 'wavenumber'])
             combined_stats_csv = combined_stats_csv.sort_values(by=['period', 'wavenumber'])
+            combined_stats_csv = combined_stats_csv.round(decimals=3)
             # round to 2 decimal places
             combined_csv = combined_csv.round(decimals=3)
 

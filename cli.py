@@ -208,9 +208,10 @@ def main():
 
         # Finally, concatenate all CSVs and remove the temp folder
 
-        if not data['examine_wavenumber_mode'] and 'test_hdf_output' in data and not data['test_hdf_output']:
+        if not data['examine_wavenumber_mode'] and ('test_hdf_output' not in data or not data['test_hdf_output']):
             from pandas import concat, read_csv
 
+            print('Concatenating CSVs...')
             path = os.path.join(data['output_directory'], temp_folder_name)
             stats_path = os.path.join(path, 'stats')
             filenames = os.listdir(path)

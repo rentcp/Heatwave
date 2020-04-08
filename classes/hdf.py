@@ -371,6 +371,8 @@ def filter_dataset(df: pd.DataFrame, radiances: pd.DataFrame, radiances_quality:
                                                                  hdf_filter.include_prime_meridian,
                                                                  is_search_area=False)
     radiances = radiances[prefilter_geo_condition]
+    df = df[prefilter_geo_condition]
+    radiances_quality = radiances_quality[prefilter_geo_condition]
 
     # start counting amount of data points removed by filters
     num_data_points = radiances.count().sum()

@@ -6,7 +6,109 @@ import pandas
 BASE_URL = 'https://airsl2.gesdisc.eosdis.nasa.gov/data/Aqua_AIRS_Level2/AIRS2CCF.006/'
 
 
+def calculate_lat_lon_filter_condition(data, min_lat, max_lat, min_lon, max_lon, include_prime_meridian,
+                                       is_search_area):
+    def normalize_latitude_arithmetic(latitude):
+        if latitude < -90:
+            return -90
+        if latitude > 90:
+            return 90
+
+        return latitude
+
+    def normalize_longitude_arithmetic(longitude):
+        if longitude < -180:
+            return longitude % 180
+        if longitude > 180:
+            return -180 + (longitude % 180)
+
+        return longitude
+
+    # Handle special logic for expanded search area
+    if is_search_area:
+        search_min_lat = normalize_latitude_arithmetic(min_lat - 10)
+        search_max_lat = normalize_latitude_arithmetic(max_lat + 10)
+        latitude_condition = (data.lat >= search_min_lat) & (data.lat <= search_max_lat)
+    else:
+        latitude_condition = (data.lat >= min_lat) & (data.lat <= max_lat)
+
+    # include longitudes within the specified range considering whether or not the prime meridian is included
+    lon_naively_contains_zero = (min_lon <= 0 <= max_lon)
+    longitude_condition = (data.lon >= min_lon) & (data.lon <= max_lon)
+
+    # special logic for meridian setting
+    special_meridian_logic = False
+    if not ((lon_naively_contains_zero and include_prime_meridian) or
+            (not lon_naively_contains_zero and not include_prime_meridian)):
+        # take from the complement of the usual longitude slice
+        longitude_condition = (data.lon <= min_lon) | (data.lon >= max_lon)
+        special_meridian_logic = True
+
+    # Expand search area longitude further near the poles
+    if is_search_area:
+        # 1st tier, +/- 10 degrees at absolute latitude < 60
+        if special_meridian_logic:
+            longitude_condition |= (
+                ((data.lon <= normalize_longitude_arithmetic(min_lon + 10))
+                 |
+                 (data.lon >= normalize_longitude_arithmetic(max_lon - 10)))
+                &
+                ((data.lat > -60) & (data.lat < 60))
+            )
+        else:
+            longitude_condition |= (
+                ((data.lon >= normalize_longitude_arithmetic(min_lon - 10))
+                 &
+                 (data.lon <= normalize_longitude_arithmetic(max_lon + 10)))
+                &
+                ((data.lat > -60) & (data.lat < 60))
+            )
+        # 2nd tier, +/- 25 degrees at 60-70 absolute latitude
+        if special_meridian_logic:
+            longitude_condition |= (
+                ((data.lon <= normalize_longitude_arithmetic(min_lon + 25))
+                 |
+                 (data.lon >= normalize_longitude_arithmetic(max_lon - 25)))
+                &
+                ((data.lat <= -60) | (data.lat >= 60))
+            )
+        else:
+            longitude_condition |= (
+                ((data.lon >= normalize_longitude_arithmetic(min_lon - 25))
+                 &
+                 (data.lon <= normalize_longitude_arithmetic(max_lon + 25)))
+                &
+                ((data.lat <= -60) | (data.lat >= 60))
+            )
+        # 3rd tier, +/- 45 degrees at 70-80 absolute latitude
+        if special_meridian_logic:
+            longitude_condition |= (
+                ((data.lon <= normalize_longitude_arithmetic(min_lon + 45))
+                 |
+                 (data.lon >= normalize_longitude_arithmetic(max_lon - 45)))
+                &
+                ((data.lat <= -70) | (data.lat >= 70))
+            )
+        else:
+            longitude_condition |= (
+                ((data.lon >= normalize_longitude_arithmetic(min_lon - 45))
+                 &
+                 (data.lon <= normalize_longitude_arithmetic(max_lon + 45)))
+                &
+                ((data.lat <= -70) | (data.lat >= 70))
+            )
+        # 4th tier, all longitudes at absolute latitude > 80
+        longitude_condition |= (
+            ((data.lat <= -80) | (data.lat >= 80))
+        )
+
+    geo_condition = latitude_condition & longitude_condition
+
+    return geo_condition
+
+
 class AquaPositions(object):
+
     def get_hdf_urls(self, start_granule, end_granule, min_latitude, min_longitude, max_latitude, max_longitude,
                      include_prime_meridian, min_gca, test_hdf_output):
         min_year, max_year = start_granule.year, end_granule.year
@@ -20,26 +122,14 @@ class AquaPositions(object):
             (pandas.read_csv(filename) for filename in data_files), sort=True
         )
 
-        condition = (
-            (data.lat >= min_latitude) & (data.lat <= max_latitude)
-        )
-
-        # include longitudes within the specified range considering whether or not the prime meridian is included
-        lon_naively_contains_zero = (min_longitude <= 0 and max_longitude >= 0)
-        longitude_condition = (data.lon >= min_longitude) & (data.lon <= max_longitude)
-
-        # special logic for meridian setting
-        if not ((lon_naively_contains_zero and include_prime_meridian) or
-                (not lon_naively_contains_zero and not include_prime_meridian)):
-            # take from the complement of the usual longitude slice
-            longitude_condition = (data.lon <= min_longitude) | (data.lon >= max_longitude)
-
-        condition &= longitude_condition
+        condition = calculate_lat_lon_filter_condition(data, min_latitude, max_latitude, min_longitude,
+                                                       max_longitude, include_prime_meridian,
+                                                       is_search_area=True)
 
         # granule times must be within the specified range - this can be calculated against the granule numbers
         if end_granule.granule_number >= start_granule.granule_number:
             condition &= (
-                (data.granule >= start_granule.granule_number) & (data.granule <= end_granule.granule_number)
+                    (data.granule >= start_granule.granule_number) & (data.granule <= end_granule.granule_number)
             )
         else:
             condition &= (

@@ -86,8 +86,12 @@ def main():
         with open(sys.argv[1], 'r') as f:
             data = json.load(f)
 
-        username = input('EarthData Login username: ')
-        password = getpass()
+        if 'test_hdf_output' not in data or not data['test_hdf_output']:
+            username = input('EarthData Login username: ')
+            password = getpass()
+        else:
+            username = 'test'
+            password = 'test'
 
         data['username'] = username
         data['password'] = password

@@ -1,8 +1,6 @@
 import pytest
 from datetime import datetime, time
 
-from classes.hdf import Earthdata
-
 
 class TestEarthdata(object):
 
@@ -22,6 +20,7 @@ class TestEarthdata(object):
         (time(23, 54), False, (240, False)),   # between ticks, range end, no seconds
         (time(23, 58), True, (240, False)),  # between ticks, range start, no seconds
     ])
+    @pytest.mark.skip(reason="Old, deprecated test")
     def test_get_time_kernel(self, time_of_day, is_end_of_range, expected):
         instance = Earthdata('', '', '')
         assert instance.get_time_kernel(time_of_day, is_end_of_range) == expected
@@ -65,6 +64,7 @@ class TestEarthdata(object):
         ),
 
     ])
+    @pytest.mark.skip(reason="Old, deprecated test")
     def test_get_kernels_for_time_range(self, start_datetime, end_datetime, expected):
         instance = Earthdata('', '', '')
         result = instance.get_kernels_for_time_range(start_datetime, end_datetime)

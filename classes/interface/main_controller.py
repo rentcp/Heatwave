@@ -21,10 +21,10 @@ class MainController(object):
 
         granules = self.get_granules(data)
 
-        if 'test_hdf_output' in data and data['test_hdf_output']:
-            return granules
-
         urls = self.get_urls_for_granules(data, *granules)
+
+        if 'test_hdf_output' in data and data['test_hdf_output']:
+            return urls
 
         self.download_files(data, urls)
 
@@ -205,6 +205,11 @@ class MainController(object):
             test_hdf_output = False
 
         aqua_positions = AquaPositions()
+
+        if test_hdf_output:
+            return aqua_positions.get_hdf_urls(
+                start_granule, end_granule, min_latitude, min_longitude, max_latitude, max_longitude,
+                include_prime_meridian, min_gca, test_hdf_output)
 
         return list(aqua_positions.get_hdf_urls(
             start_granule, end_granule, min_latitude, min_longitude, max_latitude, max_longitude,

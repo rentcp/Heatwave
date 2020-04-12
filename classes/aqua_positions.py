@@ -146,25 +146,7 @@ class AquaPositions(object):
         data = data[condition]
 
         if test_hdf_output:
-            actual_granule_numbers = [int(filename.split('.')[4]) for filename in data.hdf_filename]
-            correct_granule_numbers = [121, 122, 123, 124, 125, 138, 139, 140, 154, 155]
-            print(actual_granule_numbers)
-            num_correct = 0
-            num_extra = 0
-            for granule in actual_granule_numbers:
-                if granule in correct_granule_numbers:
-                    num_correct += 1
-                else:
-                    num_extra += 1
-
-            if num_correct >= len(correct_granule_numbers) and num_extra == 0:
-                print("Correct granules found, code is correct!")
-            elif num_correct >= len(correct_granule_numbers) and num_extra > 0:
-                print("All correct granules found, but also {} incorrect.".format(num_extra))
-            else:
-                print("{} correct granules found with {} incorrect granules.".format(num_correct, num_extra))
-
-            return []
+            return data
 
         return (self.get_url(filename) for filename in data.hdf_filename)
 

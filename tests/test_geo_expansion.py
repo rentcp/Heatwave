@@ -39,6 +39,15 @@ def test_geo_expansion(test_run):
     else:
         print('Selected {}/{} expected granules, {} unexpected, {} missed.'.format(num_correct, num_expected,
                                                                                    num_extra, num_missed))
+
+        if num_extra > 0:
+            print('Unexpected granules:')
+            print(incorrectly_found_granules)
+
+        if num_missed > 0:
+            print('Missed granules:')
+            print(missed_granules)
+
     assert(num_correct == num_expected)
     assert(num_extra == 0)
     assert(num_missed == 0)

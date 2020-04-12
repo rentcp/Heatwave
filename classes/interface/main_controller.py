@@ -80,7 +80,10 @@ class MainController(object):
             )
 
         # write CSV of data and format dates as MM-YYYY
-        curves_data.to_csv(base_filename + '.csv', index=False, date_format='%m-%Y')
+        if curves_data is not None:
+            curves_data.to_csv(base_filename + '.csv', index=False, date_format='%m-%Y')
+        else:
+            print('No data to write.')
 
         return  # No longer need to show plot
 

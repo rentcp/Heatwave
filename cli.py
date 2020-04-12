@@ -212,7 +212,7 @@ def main():
 
         # Finally, concatenate all CSVs and remove the temp folder
 
-        if not data['examine_wavenumber_mode']:
+        if not data['examine_wavenumber_mode'] and not data['test_hdf_output']:
             from pandas import concat, read_csv
 
             path = os.path.join(data['output_directory'], temp_folder_name)

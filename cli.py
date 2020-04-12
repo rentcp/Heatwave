@@ -195,7 +195,6 @@ def main():
             data_stats = controller.process(data_item)
 
             if 'test_hdf_output' in data_item and data_item['test_hdf_output']:
-                print(data_stats)
                 return data_stats
 
             #  Collect and sum stats from output

@@ -20,6 +20,10 @@ class MainController(object):
         self.signal_status_update('>>> Calculating...')
 
         granules = self.get_granules(data)
+
+        if 'test_hdf_output' in data and data['test_hdf_output']:
+            return granules
+
         urls = self.get_urls_for_granules(data, *granules)
 
         self.download_files(data, urls)

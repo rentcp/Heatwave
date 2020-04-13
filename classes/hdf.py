@@ -174,7 +174,7 @@ def calculate_averages_and_filter(results, hdf_filter):
     wavelengths = list(CHANNELS_TO_WAVELENGTHS.values())
 
     data = []
-    if hdf_filter.examine_wavenumber_mode:
+    if hdf_filter.examine_wavenumber_mode and results:
         data = {}
         data = data.fromkeys(results[0][2], [])
 

@@ -86,8 +86,12 @@ def main():
         with open(sys.argv[1], 'r') as f:
             data = json.load(f)
 
-        username = input('EarthData Login username: ')
-        password = getpass()
+        if 'test_hdf_output' not in data or not data['test_hdf_output']:
+            username = input('EarthData Login username: ')
+            password = getpass()
+        else:
+            username = 'test'
+            password = 'test'
 
         data['username'] = username
         data['password'] = password
@@ -189,6 +193,10 @@ def main():
                 (data_item['date_range_start']), data_item['date_range_end']))
             controller.delete_empty_hdfs(data_item['data_directory'])
             data_stats = controller.process(data_item)
+
+            if 'test_hdf_output' in data_item and data_item['test_hdf_output']:
+                return data_stats
+
             #  Collect and sum stats from output
             if filter_stats:
                 filter_stats = \
@@ -208,7 +216,7 @@ def main():
 
         # Finally, concatenate all CSVs and remove the temp folder
 
-        if not data['examine_wavenumber_mode']:
+        if not data['examine_wavenumber_mode'] and not data['test_hdf_output']:
             from pandas import concat, read_csv
 
             path = os.path.join(data['output_directory'], temp_folder_name)
@@ -220,8 +228,16 @@ def main():
             filenames = [f for f in filenames if f.endswith('.csv')]
             stats_filenames = [f for f in stats_filenames if f.endswith('.csv')]
 
-            combined_csv = concat([read_csv(f) for f in filenames])
-            combined_stats_csv = concat([read_csv(f) for f in stats_filenames])
+            if len(filenames) > 1:
+                combined_csv = concat([read_csv(f) for f in filenames])
+            else:
+                combined_csv = read_csv(filenames[0])
+
+            if len(stats_filenames) > 1:
+                combined_stats_csv = concat([read_csv(f) for f in stats_filenames])
+            else:
+                combined_stats_csv = read_csv(stats_filenames[0])
+
             combined_csv = combined_csv.sort_values(by=['period', 'wavenumber'])
             combined_stats_csv = combined_stats_csv.sort_values(by=['period', 'wavenumber'])
             combined_stats_csv = combined_stats_csv.round(decimals=3)

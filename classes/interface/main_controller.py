@@ -20,7 +20,11 @@ class MainController(object):
         self.signal_status_update('>>> Calculating...')
 
         granules = self.get_granules(data)
+
         urls = self.get_urls_for_granules(data, *granules)
+
+        if 'test_hdf_output' in data and data['test_hdf_output']:
+            return urls
 
         self.download_files(data, urls)
 
@@ -80,7 +84,10 @@ class MainController(object):
             )
 
         # write CSV of data and format dates as MM-YYYY
-        curves_data.to_csv(base_filename + '.csv', index=False, date_format='%m-%Y')
+        if curves_data is not None:
+            curves_data.to_csv(base_filename + '.csv', index=False, date_format='%m-%Y')
+        else:
+            print('No data to write.')
 
         return  # No longer need to show plot
 
@@ -198,6 +205,11 @@ class MainController(object):
             test_hdf_output = False
 
         aqua_positions = AquaPositions()
+
+        if test_hdf_output:
+            return aqua_positions.get_hdf_urls(
+                start_granule, end_granule, min_latitude, min_longitude, max_latitude, max_longitude,
+                include_prime_meridian, min_gca, test_hdf_output)
 
         return list(aqua_positions.get_hdf_urls(
             start_granule, end_granule, min_latitude, min_longitude, max_latitude, max_longitude,

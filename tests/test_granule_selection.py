@@ -8,7 +8,7 @@ import glob
 
 
 # Collect test JSON and CSV files
-json_files = glob.glob('tests/geo_expansion_test_data/*.json')
+json_files = glob.glob('tests/granule_selection_test_data/*.json')
 test_data = []
 for json_file in json_files:
     csv_file = json_file.split('.')[0] + '.csv'
@@ -17,7 +17,7 @@ for json_file in json_files:
 
 # Run each JSON file through the program
 @pytest.mark.parametrize('test_run', test_data)
-def test_geo_expansion(test_run):
+def test_granule_selection(test_run):
     sys.argv = ['', test_run['json']]
     test_name = os.path.basename(test_run['json']).split('.')[0]
     print('Running {}...'.format(test_name))

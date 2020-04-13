@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from cli import main
 import sys
@@ -17,7 +19,7 @@ for json_file in json_files:
 @pytest.mark.parametrize('test_run', test_data)
 def test_geo_expansion(test_run):
     sys.argv = ['', test_run['json']]
-    test_name = test_run['json'].split('.')[0]
+    test_name = os.path.basename(test_run['json']).split('.')[0]
     print('Running {}...'.format(test_name))
     selected_granules = main()
 

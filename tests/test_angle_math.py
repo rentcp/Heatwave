@@ -75,6 +75,14 @@ expand_longitude_slice_test_cases = [
         (-60, 0, True, 60)
     ],
     [
+        -180, -10, False, 20,
+        (10, 160, True, 210)
+    ],
+    [
+        -180, 180, True, 10,
+        (-180, 180, True, 360)
+    ],
+    [
         -180, -170, False, 20,
         (-150, 160, False, 50)
     ]
@@ -85,8 +93,5 @@ expand_longitude_slice_test_cases = [
 def test_selection_expansion(test_case):
     expansion_results = expand_longitude_slice_by_degrees(test_case[0], test_case[1], test_case[2], test_case[3])
     expected_results = test_case[4]
-    assert expansion_results[0] == expected_results[0]
-    assert expansion_results[1] == expected_results[1]
-    assert expansion_results[2] == expected_results[2]
-    assert expansion_results[3] == expected_results[3]
+    assert expansion_results == expected_results
 

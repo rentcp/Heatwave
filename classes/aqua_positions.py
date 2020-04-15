@@ -68,24 +68,24 @@ def expand_longitude_slice_by_degrees(min_lon, max_lon, include_prime_meridian, 
     if original_span + (degrees * 2) >= 360:
         return -180, 180, True, 360
 
-    _antimeridian = includes_intl_date_line(min_lon, max_lon, include_prime_meridian)
-    if not _antimeridian:
-        _expanded_min_lon = normalize_longitude_arithmetic(min_lon - degrees)
-        _expanded_max_lon = normalize_longitude_arithmetic(max_lon + degrees)
+    antimeridian = includes_intl_date_line(min_lon, max_lon, include_prime_meridian)
+    if not antimeridian:
+        expanded_min_lon = normalize_longitude_arithmetic(min_lon - degrees)
+        expanded_max_lon = normalize_longitude_arithmetic(max_lon + degrees)
     else:
-        _expanded_min_lon = normalize_longitude_arithmetic(min_lon + degrees)
-        _expanded_max_lon = normalize_longitude_arithmetic(max_lon - degrees)
+        expanded_min_lon = normalize_longitude_arithmetic(min_lon + degrees)
+        expanded_max_lon = normalize_longitude_arithmetic(max_lon - degrees)
 
-    if _expanded_min_lon > _expanded_max_lon:
+    if expanded_min_lon > expanded_max_lon:
         # Swap min and max to simplify math
-        _expanded_min_lon, _expanded_max_lon = _expanded_max_lon, _expanded_min_lon
+        expanded_min_lon, expanded_max_lon = expanded_max_lon, expanded_min_lon
 
     if not include_prime_meridian:
         # Does this expanded area now include the prime meridian?
         if abs(min_lon) - degrees <= 0 or max_lon - degrees <= 0:
             include_prime_meridian = True
 
-    expanded_span = calculate_longitude_angle_in_degrees(_expanded_min_lon, _expanded_max_lon,
+    expanded_span = calculate_longitude_angle_in_degrees(expanded_min_lon, expanded_max_lon,
                                                          include_prime_meridian)
     if not (expanded_span >= original_span):
         raise ValueError('Expanded span is smaller than original span. {} < {}'.format(expanded_span,
@@ -98,7 +98,7 @@ def expand_longitude_slice_by_degrees(min_lon, max_lon, include_prime_meridian, 
             'Expanded span is smaller than expected. Original {}, expanded to {}, expected {} (expansion angle {})'
             .format(original_span, expanded_span, expected_span, degrees))
 
-    return _expanded_min_lon, _expanded_max_lon, include_prime_meridian, expanded_span
+    return expanded_min_lon, expanded_max_lon, include_prime_meridian, expanded_span
 
 
 def calculate_lat_lon_filter_condition(data, min_lat, max_lat, min_lon, max_lon, include_prime_meridian,

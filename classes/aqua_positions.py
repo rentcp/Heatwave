@@ -110,19 +110,23 @@ def calculate_lat_lon_filter_condition(data, min_lat, max_lat, min_lon, max_lon,
         latitude_condition = (data.lat >= min_lat) & (data.lat <= max_lat)
 
     # include longitudes within the specified range considering whether or not the prime meridian is included
-    antimeridian = includes_intl_date_line(min_lon, max_lon, include_prime_meridian)
-    if not antimeridian and not include_prime_meridian:
-        longitude_condition = (data.lon >= min_lon) & (data.lon <= max_lon)
-    else:
+    lon_naively_contains_zero = (min_lon <= 0 <= max_lon)
+    special_logic = not ((lon_naively_contains_zero and include_prime_meridian) or
+                         (not lon_naively_contains_zero and not include_prime_meridian))
+    if special_logic:
         longitude_condition = (data.lon <= min_lon) | (data.lon >= max_lon)
+    else:
+        longitude_condition = (data.lon >= min_lon) & (data.lon <= max_lon)
 
     # Expand search area longitude further near the poles
     if is_search_area:
         # 1st tier, +/- 10 degrees at absolute latitude < 60
         expanded_min_lon, expanded_max_lon, includes_prime, span = \
             expand_longitude_slice_by_degrees(min_lon, max_lon, include_prime_meridian, 10)
-        antimeridian = includes_intl_date_line(min_lon, max_lon, include_prime_meridian)
-        if antimeridian and not include_prime_meridian:
+        lon_naively_contains_zero = (expanded_min_lon <= 0 <= expanded_max_lon)
+        special_logic = not ((lon_naively_contains_zero and includes_prime) or
+                             (not lon_naively_contains_zero and not includes_prime))
+        if special_logic:
             longitude_condition |= (
                 ((data.lon <= expanded_min_lon)
                  |
@@ -141,8 +145,10 @@ def calculate_lat_lon_filter_condition(data, min_lat, max_lat, min_lon, max_lon,
         # 2nd tier, +/- 25 degrees at 60-70 absolute latitude
         expanded_min_lon, expanded_max_lon, includes_prime, span = \
             expand_longitude_slice_by_degrees(min_lon, max_lon, include_prime_meridian, 25)
-        antimeridian = includes_intl_date_line(min_lon, max_lon, include_prime_meridian)
-        if antimeridian and not include_prime_meridian:
+        lon_naively_contains_zero = (expanded_min_lon <= 0 <= expanded_max_lon)
+        special_logic = not ((lon_naively_contains_zero and includes_prime) or
+                             (not lon_naively_contains_zero and not includes_prime))
+        if special_logic:
             longitude_condition |= (
                 ((data.lon <= expanded_min_lon)
                  |
@@ -161,8 +167,10 @@ def calculate_lat_lon_filter_condition(data, min_lat, max_lat, min_lon, max_lon,
         # 3rd tier, +/- 45 degrees at 70-80 absolute latitude
         expanded_min_lon, expanded_max_lon, includes_prime, span = \
             expand_longitude_slice_by_degrees(min_lon, max_lon, include_prime_meridian, 45)
-        antimeridian = includes_intl_date_line(min_lon, max_lon, include_prime_meridian)
-        if antimeridian and not include_prime_meridian:
+        lon_naively_contains_zero = (expanded_min_lon <= 0 <= expanded_max_lon)
+        special_logic = not ((lon_naively_contains_zero and includes_prime) or
+                             (not lon_naively_contains_zero and not includes_prime))
+        if special_logic:
             longitude_condition |= (
                 ((data.lon <= expanded_min_lon)
                  |

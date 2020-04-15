@@ -52,3 +52,41 @@ calc_longitude_angle_test_cases = [
 @pytest.mark.parametrize('test_case', calc_longitude_angle_test_cases)
 def test_calculate_longitude_angle(test_case):
     assert calculate_longitude_angle_in_degrees(test_case[0], test_case[1], test_case[2]) == test_case[3]
+
+
+expand_longitude_slice_test_cases = [
+    # Input: min_lon, max_lon, includes_prime_meridian, degrees_to_expand;
+    # Output: expanded_min, expanded_max, expanded_includes_pm, expanded_span_degrees
+
+    [
+        0, 10, True, 10,
+        (-10, 20, True, 30)
+    ],
+    [
+        20, 40, False, 10,
+        (10, 50, False, 40)
+    ],
+    [
+        20, 60, False, 30,
+        (-10, 90, True, 100)
+    ],
+    [
+        -50, -10, False, 10,
+        (-60, 0, True, 60)
+    ],
+    [
+        -180, -170, False, 20,
+        (-150, 160, False, 50)
+    ]
+]
+
+
+@pytest.mark.parametrize('test_case', expand_longitude_slice_test_cases)
+def test_selection_expansion(test_case):
+    expansion_results = expand_longitude_slice_by_degrees(test_case[0], test_case[1], test_case[2], test_case[3])
+    expected_results = test_case[4]
+    assert expansion_results[0] == expected_results[0]
+    assert expansion_results[1] == expected_results[1]
+    assert expansion_results[2] == expected_results[2]
+    assert expansion_results[3] == expected_results[3]
+

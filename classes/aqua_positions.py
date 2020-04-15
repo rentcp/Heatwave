@@ -68,13 +68,8 @@ def expand_longitude_slice_by_degrees(min_lon, max_lon, include_prime_meridian, 
     if original_span + (degrees * 2) >= 360:
         return -180, 180, True, 360
 
-    antimeridian = includes_intl_date_line(min_lon, max_lon, include_prime_meridian)
-    if not antimeridian:
-        expanded_min_lon = normalize_longitude_arithmetic(min_lon - degrees)
-        expanded_max_lon = normalize_longitude_arithmetic(max_lon + degrees)
-    else:
-        expanded_min_lon = normalize_longitude_arithmetic(min_lon + degrees)
-        expanded_max_lon = normalize_longitude_arithmetic(max_lon - degrees)
+    expanded_min_lon = normalize_longitude_arithmetic(min_lon - degrees)
+    expanded_max_lon = normalize_longitude_arithmetic(max_lon + degrees)
 
     if expanded_min_lon > expanded_max_lon:
         # Swap min and max to simplify math
@@ -82,7 +77,9 @@ def expand_longitude_slice_by_degrees(min_lon, max_lon, include_prime_meridian, 
 
     if not include_prime_meridian:
         # Does this expanded area now include the prime meridian?
-        if abs(min_lon) - degrees <= 0 or max_lon - degrees <= 0:
+        if 0 < min_lon <= degrees:
+            include_prime_meridian = True
+        elif max_lon < 0 and (degrees + max_lon >= 0):
             include_prime_meridian = True
 
     expanded_span = calculate_longitude_angle_in_degrees(expanded_min_lon, expanded_max_lon,
@@ -114,13 +111,7 @@ def calculate_lat_lon_filter_condition(data, min_lat, max_lat, min_lon, max_lon,
 
     # include longitudes within the specified range considering whether or not the prime meridian is included
     antimeridian = includes_intl_date_line(min_lon, max_lon, include_prime_meridian)
-    longitude_condition = (data.lon < 0) & (data.lon > 0)
-    if include_prime_meridian and antimeridian:
-        if min_lon <= 0 and max_lon <= 0:
-            longitude_condition = (data.lon <= min_lon) | (data.lon >= 0) | (data.lon >= max_lon)
-        else:
-            longitude_condition = (data.lon <= min_lon) | (data.lon <= 0) | (data.lon >= max_lon)
-    elif not antimeridian:
+    if not antimeridian and not include_prime_meridian:
         longitude_condition = (data.lon >= min_lon) & (data.lon <= max_lon)
     else:
         longitude_condition = (data.lon <= min_lon) | (data.lon >= max_lon)
@@ -131,7 +122,7 @@ def calculate_lat_lon_filter_condition(data, min_lat, max_lat, min_lon, max_lon,
         expanded_min_lon, expanded_max_lon, includes_prime, span = \
             expand_longitude_slice_by_degrees(min_lon, max_lon, include_prime_meridian, 10)
         antimeridian = includes_intl_date_line(min_lon, max_lon, include_prime_meridian)
-        if antimeridian:
+        if antimeridian and not include_prime_meridian:
             longitude_condition |= (
                 ((data.lon <= expanded_min_lon)
                  |
@@ -151,7 +142,7 @@ def calculate_lat_lon_filter_condition(data, min_lat, max_lat, min_lon, max_lon,
         expanded_min_lon, expanded_max_lon, includes_prime, span = \
             expand_longitude_slice_by_degrees(min_lon, max_lon, include_prime_meridian, 25)
         antimeridian = includes_intl_date_line(min_lon, max_lon, include_prime_meridian)
-        if antimeridian:
+        if antimeridian and not include_prime_meridian:
             longitude_condition |= (
                 ((data.lon <= expanded_min_lon)
                  |
@@ -171,7 +162,7 @@ def calculate_lat_lon_filter_condition(data, min_lat, max_lat, min_lon, max_lon,
         expanded_min_lon, expanded_max_lon, includes_prime, span = \
             expand_longitude_slice_by_degrees(min_lon, max_lon, include_prime_meridian, 45)
         antimeridian = includes_intl_date_line(min_lon, max_lon, include_prime_meridian)
-        if antimeridian:
+        if antimeridian and not include_prime_meridian:
             longitude_condition |= (
                 ((data.lon <= expanded_min_lon)
                  |

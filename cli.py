@@ -30,7 +30,7 @@ def main():
             ## A NOTE ABOUT LONGITUDE LIMITS ##
             In most cases, longitude lower limit is INCLUSIVE, upper limit EXCLUSIVE. min <= lon < max. However, in the
             case that the longitude slice is defined by 'all longitude lower than min and greater than max', these
-            limits are inverted, e.g. (lon < min) OR (lon >= max). This way, inverting include_prime_meridian will 
+            limits are inverted, e.g. (lon < min) || (lon >= max). This way, inverting include_prime_meridian will 
             always select a perfectly complementary slice of the globe.
             
             "min_longitude": -146,

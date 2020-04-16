@@ -188,6 +188,38 @@ def main():
         time_started = datetime.now()
 
         for data_item in data_list:
+            min_lon = data_item['min_longitude']
+            max_lon = data_item['max_longitude']
+            if min_lon > max_lon:
+                print('Error: Min lon is greater than max lon. Switch min and max values.')
+                exit(0)
+
+            if min_lon == 0 or max_lon == 0:
+                from classes.aqua_positions import calculate_longitude_angle_in_degrees
+                western_min_lon = min_lon + 0.001
+                eastern_min_lon = min_lon - 0.001
+                western_max_lon = max_lon + 0.001
+                eastern_max_lon = max_lon - 0.001
+                eastern_angle_pm = calculate_longitude_angle_in_degrees(eastern_min_lon, eastern_max_lon, True)
+                western_angle_pm = calculate_longitude_angle_in_degrees(western_min_lon, western_max_lon, True)
+                eastern_angle_no_pm = calculate_longitude_angle_in_degrees(eastern_min_lon, eastern_max_lon, False)
+                western_angle_no_pm = calculate_longitude_angle_in_degrees(western_min_lon, western_max_lon, False)
+
+                print(
+                    '\nError: Hemisphere selection is ambiguous. Max or min longitude CANNOT be zero. '
+                    '\n'
+                    '\nUse 0.001 or -0.001 instead.'
+                    '\n'
+                    '\nDouble check that you use the correct include_prime_meridian setting after making this change.'
+                    '\n'
+                    '\n 0.001 and include_prime_meridian = false: {} degree slice'
+                    '\n-0.001 and include_prime_meridian = false: {} degree slice'
+                    '\n 0.001 and include_prime_meridian = true:  {} degree slice'
+                    '\n-0.001 and include_prime_meridian = true:  {} degree slice'
+                    .format(western_angle_no_pm, eastern_angle_no_pm, western_angle_pm, eastern_angle_pm)
+                )
+                exit(0)
+
             time_batch_started = datetime.now()
             print("Processing data for dates: {} through {}".format(
                 (data_item['date_range_start']), data_item['date_range_end']))

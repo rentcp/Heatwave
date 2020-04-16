@@ -24,9 +24,16 @@ def main():
             "time_range_start": "16:00",  # format must be hh:mm
             "time_range_end": "20:00",  # format must be hh:mm
             
-            "min_latitude": -60, (Latitude thresholds are INCLUSIVE)
+            "min_latitude": -60, (Latitude lower limit is INCLUSIVE, upper limit is EXCLUSIVE. min <= lat < max)
             "max_latitude": 60,
-            "min_longitude": -146, (Longitude thresholds are INCLUSIVE regardless of prime meridian inclusion)
+            
+            ## A NOTE ABOUT LONGITUDE LIMITS ##
+            In most cases, longitude lower limit is INCLUSIVE, upper limit EXCLUSIVE. min <= lon < max. However, in the
+            case that the longitude slice is defined by 'all longitude lower than min and greater than max', these
+            limits are inverted, e.g. (lon < min) || (lon >= max). This way, inverting include_prime_meridian will 
+            always select a perfectly complementary slice of the globe.
+            
+            "min_longitude": -146,
             "max_longitude": 130,
             "include_prime_meridian": true,  # whether the desired longitude section includes the prime meridian
             

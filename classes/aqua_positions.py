@@ -1,3 +1,4 @@
+import math
 import os
 from datetime import datetime
 
@@ -84,13 +85,23 @@ def expand_longitude_slice_by_degrees(min_lon, max_lon, include_prime_meridian, 
 
     expanded_span = calculate_longitude_angle_in_degrees(expanded_min_lon, expanded_max_lon,
                                                          include_prime_meridian)
+    # Round to 0.001 for sake of this check
+    original_span = round(original_span, 3)
+
     if not (expanded_span >= original_span):
         raise ValueError('Expanded span is smaller than original span. {} < {}'.format(expanded_span,
                                                                                        original_span))
     expected_span = original_span + (degrees * 2)
+
+    # Round to 0.001 for sake of this check
+    expected_span = round(expected_span, 3)
+
     if expected_span > 360:
         expected_span = 360
-    if expected_span != expanded_span and expanded_span < 360:
+
+    error_amount = abs(expected_span - expanded_span)
+
+    if error_amount >= 0.002 and expanded_span < 360:
         raise ValueError(
             'Expanded span is smaller than expected. Original {}, expanded to {}, expected {} (expansion angle {})'
             .format(original_span, expanded_span, expected_span, degrees))

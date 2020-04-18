@@ -66,6 +66,7 @@ def main():
             
             "scanang_limit": 30,  # max inside/outside scan angle (Threshold is EXCLUSIVE if 'inside', INCLUSIVE otherwise)
             "inside_scanang": true  # whether or not scans must be inside or outside the above angle
+            "delete_unreadable_granules": true  # If true, delete granules that are unreadable so they can be re-downloaded.
             
         }         
             

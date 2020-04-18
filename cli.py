@@ -307,14 +307,18 @@ def main():
             print('Processing completed in {}H {}m {}s'.format(total_elapsed_hours, total_elapsed_minutes,
                                                                remainder_seconds))
 
-        if 'batch_files' in global_data:
+        if 'batch_directory' in global_data:
             # This is a batch run!
+            print('Running batch of files...')
             return_values = []
-            for file in global_data['batch_files']:
+            files = os.listdir(global_data['batch_directory'])
+            for file in files:
                 path = os.path.join(global_data['batch_directory'], file)
                 with open(path) as f:
                     batch_data = json.load(f)
+                    print('\nRunning file {}...\n'.format(file))
                     return_values.append(main_single_file_loop(batch_data, _username, _password))
+                    print('\nFinished processing file {}.\n'.format(file))
 
             return return_values
 

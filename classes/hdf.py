@@ -314,6 +314,17 @@ def extract_granule_dataset(granule, hdf_filter: HDFFilter):
         data = SD(granule.local_file_name)
     except (HDF4Error, ValueError):
         print("WARNING: Granule could not be read: " + granule.local_file_name)
+        if hdf_filter.delete_unreadable:
+            try:
+                os.remove(granule.local_file_name)
+                print('Deleted unreadable granule.')
+            except Exception as e:
+                print(e)
+                print('Could not delete unreadable granule.')
+        else:
+            print(
+                'Enable "delete_unreadable_granules" flag to delete and re-download automatically in a subsequent run.'
+            )
         return granule, None, None, None
 
     # relevant datasets are dust_flag (2D), landFrac (2D), CCfinal_Noise_Amp (2D), radiances_QC(3D), radiances (3D)

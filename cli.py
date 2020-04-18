@@ -94,17 +94,13 @@ def main():
         with open(sys.argv[1], 'r') as f:
             global_data = json.load(f)
 
-        global_username = input('EarthData Login username: ')
-        global_pass = getpass()
+        _username = input('EarthData Login username: ')
+        _password = getpass()
 
         def main_single_file_loop(data, global_username, global_pass):
             if 'test_hdf_output' not in data or not data['test_hdf_output']:
-                if global_username and global_pass:
-                    username = global_username
-                    password = global_pass
-                else:
-                    username = input('EarthData Login username: ')
-                    password = getpass()
+                username = global_username
+                password = global_pass
             else:
                 username = 'test'
                 password = 'test'
@@ -318,13 +314,13 @@ def main():
                 path = os.path.join(global_data['batch_directory'], file)
                 with open(path) as f:
                     batch_data = json.load(f)
-                    return_values.append(main_single_file_loop(batch_data, global_username, global_pass))
+                    return_values.append(main_single_file_loop(batch_data, _username, _password))
 
             return return_values
 
         else:
             # Regular run!
-            return main_single_file_loop(global_data, global_username, global_pass)
+            return main_single_file_loop(global_data, _username, _password)
 
 
 if __name__ == '__main__':

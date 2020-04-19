@@ -21,6 +21,10 @@ def print_stats(filter_stats):
     try:
         # print some stats about the filtering
         print("-- FILTER INFO --")
+        if filter_stats['total'] == 0:
+            print("None of selected data was within the specified lat/lon area.")
+            return
+
         print("- Pre-filter:\t{:,}".format(filter_stats['total']).expandtabs(16))
 
         print("- Land:\t{0:,}\t({1:.3g}%)".format(filter_stats['land_frac'], filter_stats['land_frac']
@@ -85,7 +89,7 @@ class HDFFilter(object):
                  cloud_cover_threshold_is_max, all_spots_avg_threshold, all_spots_avg_threshold_is_max, noise_amp,
                  dust_flag_no_dust, dust_flag_single_fov, dust_flag_detected, examine_wavenumber_mode,
                  selected_wavenumber, scanang, inside_scanang, solzen_threshold, solzen_is_max, min_lat, max_lat,
-                 min_lon, max_lon, include_prime_meridian):
+                 min_lon, max_lon, include_prime_meridian, delete_unreadable):
         self.use_radiance_filters = use_radiance_filters
         self.radiance = radiance
         self.radiance_range = radiance_range
@@ -114,6 +118,7 @@ class HDFFilter(object):
         self.min_lon = min_lon
         self.max_lon = max_lon
         self.include_prime_meridian = include_prime_meridian
+        self.delete_unreadable = delete_unreadable
 
 
 class HDFStorage(object):
@@ -313,6 +318,17 @@ def extract_granule_dataset(granule, hdf_filter: HDFFilter):
         data = SD(granule.local_file_name)
     except (HDF4Error, ValueError):
         print("WARNING: Granule could not be read: " + granule.local_file_name)
+        if hdf_filter.delete_unreadable:
+            try:
+                os.remove(granule.local_file_name)
+                print('Deleted unreadable granule.')
+            except Exception as e:
+                print(e)
+                print('Could not delete unreadable granule.')
+        else:
+            print(
+                'Enable "delete_unreadable_granules" flag to delete and re-download automatically in a subsequent run.'
+            )
         return granule, None, None, None
 
     # relevant datasets are dust_flag (2D), landFrac (2D), CCfinal_Noise_Amp (2D), radiances_QC(3D), radiances (3D)

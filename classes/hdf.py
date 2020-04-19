@@ -21,6 +21,10 @@ def print_stats(filter_stats):
     try:
         # print some stats about the filtering
         print("-- FILTER INFO --")
+        if filter_stats['total'] == 0:
+            print("None of selected data was within the specified lat/lon area.")
+            return
+
         print("- Pre-filter:\t{:,}".format(filter_stats['total']).expandtabs(16))
 
         print("- Land:\t{0:,}\t({1:.3g}%)".format(filter_stats['land_frac'], filter_stats['land_frac']

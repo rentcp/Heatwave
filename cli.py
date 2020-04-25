@@ -298,7 +298,10 @@ def main():
 
                 # Delete the temp folder and all its contents
                 import shutil
-                shutil.rmtree(os.path.join(data['output_directory'], temp_folder_name))
+                try:
+                    shutil.rmtree(os.path.join(data['output_directory'], temp_folder_name))
+                except Exception as e:
+                    print("Unable to delete temporary folder. Caught {}".format(e))
 
             total_elapsed_seconds = (datetime.now() - time_started).total_seconds()
             total_elapsed_minutes = int(total_elapsed_seconds // 60) % 60

@@ -22,23 +22,27 @@
             "dust_flag_single_fov": true,
             "dust_flag_detected": true,
             
-            "landfrac_threshold": 0.005,
-	    "landfrac_threshold_is_max": false,
+            "landfrac_threshold": 1.00,
+			"landfrac_threshold_is_max": true,
             "noise_amp": false,
 
-	    "TotCld_4_CCfinal_threshold": 0.0,
-	    "TotCld_4_CCfinal_threshold_is_max": false,
-	    "all_spots_avg_threshold": 0.0,
-	    "all_spots_avg_threshold_is_max": false,
+			"TotCld_4_CCfinal_threshold": 0.0,
+			"TotCld_4_CCfinal_threshold_is_max": false,
+			"all_spots_avg_threshold": 0.0,
+			"all_spots_avg_threshold_is_max": false,
             
-            "minimum_gca": 150,
-	    "num_batches": 0,
+            "minimum_gca": 100,
+			"solzen_threshold": 108,
+			"solzen_is_max": false,
+			
+			"num_batches": 0,
 
-	    "examine_wavenumber_mode": true,
-	    "selected_wavenumber": 818.933,
+			"examine_wavenumber_mode": false,
+			"selected_wavenumber": 818.933,
 
-	    "scanang_limit": 30,
-	    "inside_scanang": true,
-	    "solzen_threshold": 108,
-	    "solzen_is_max": false
+			"scanang_limit": 30,
+			"inside_scanang": true,
+
+			"test_hdf_output": false,
+			"delete_unreadable_granules": true
         }

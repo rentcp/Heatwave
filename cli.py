@@ -97,7 +97,7 @@ def main():
         _username = input('EarthData Login username: ')
         _password = getpass()
 
-        def main_single_file_loop(data, global_username, global_pass):
+        def main_single_file_loop(data, global_username, global_pass, input_file_name):
             if 'test_hdf_output' not in data or not data['test_hdf_output']:
                 username = global_username
                 password = global_pass
@@ -290,7 +290,7 @@ def main():
 
                 base_filename = os.path.join(
                     data['output_directory'],
-                    'radiance_wavelength_month_' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+                    input_file_name.split('.')[0] + '-' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
                 )
 
                 combined_csv.to_csv(base_filename + '_concatenated' + '.csv', index=False, date_format='%Y-%m')
@@ -320,14 +320,15 @@ def main():
                 with open(path) as f:
                     batch_data = json.load(f)
                     print('\nRunning file {}...\n'.format(file))
-                    return_values.append(main_single_file_loop(batch_data, _username, _password))
+                    filename = os.path.basename(file)
+                    return_values.append(main_single_file_loop(batch_data, _username, _password, filename))
                     print('\nFinished processing file {}.\n'.format(file))
 
             return return_values
 
         else:
             # Regular run!
-            return main_single_file_loop(global_data, _username, _password)
+            return main_single_file_loop(global_data, _username, _password, sys.argv[1])
 
 
 if __name__ == '__main__':

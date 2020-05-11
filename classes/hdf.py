@@ -6,6 +6,7 @@ from time import strftime
 
 import numpy as np
 import pandas as pd
+import pyhdf
 from pyhdf.SD import SD
 from pyhdf.error import HDF4Error
 import requests
@@ -332,15 +333,19 @@ def extract_granule_dataset(granule, hdf_filter: HDFFilter):
         return granule, None, None, None
 
     # relevant datasets are dust_flag (2D), landFrac (2D), CCfinal_Noise_Amp (2D), radiances_QC(3D), radiances (3D)
-    dust_flag = pd.DataFrame(data.select('dust_flag').get())
-    land_frac = pd.DataFrame(data.select('landFrac').get())
-    cloud_cover = pd.DataFrame(data.select('TotCld_4_CCfinal').get())
-    all_spots = pd.DataFrame(data.select('all_spots_avg').get())
-    final_noise_amp = pd.DataFrame(data.select('CCfinal_Noise_Amp').get())
-    latitude = pd.DataFrame(data.select('Latitude').get())
-    longitude = pd.DataFrame(data.select('Longitude').get())
-    scanang = pd.DataFrame(data.select('scanang').get())
-    solzen = pd.DataFrame(data.select('solzen').get())
+    try:
+        dust_flag = pd.DataFrame(data.select('dust_flag').get())
+        land_frac = pd.DataFrame(data.select('landFrac').get())
+        cloud_cover = pd.DataFrame(data.select('TotCld_4_CCfinal').get())
+        all_spots = pd.DataFrame(data.select('all_spots_avg').get())
+        final_noise_amp = pd.DataFrame(data.select('CCfinal_Noise_Amp').get())
+        latitude = pd.DataFrame(data.select('Latitude').get())
+        longitude = pd.DataFrame(data.select('Longitude').get())
+        scanang = pd.DataFrame(data.select('scanang').get())
+        solzen = pd.DataFrame(data.select('solzen').get())
+    except pyhdf.error.HDF4Error:
+        print("A dataset is missing in granule: {}".format(granule.local_file_name))
+        return granule, None, None, None
 
     multi_index = pd.MultiIndex.from_product([np.arange(45), np.arange(30)])
     try:

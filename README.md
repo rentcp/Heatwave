@@ -54,7 +54,9 @@ pip install -r requirements/common.txt
 
 
 **Example execution**
->>>>python cli.py
+```
+python cli.py
+```
 
 The program will display the list of inputs required, their ranges, and their "<" versus "<=" distinctions.
 Use a text editor to set preferred parameters in example.json (you can name this anything.json)

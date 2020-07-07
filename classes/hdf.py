@@ -251,8 +251,8 @@ def calculate_averages_and_filter(results, hdf_filter):
                         data[k] += v
 
             num_data_points, num_filtered_total, num_filtered_landfrac, num_filtered_cloud_cover, \
-            num_filtered_all_spots, num_filtered_noise_amp, num_filtered_dust, num_filtered_quality, \
-            num_filtered_scanang, num_filtered_solzen = stats
+                num_filtered_all_spots, num_filtered_noise_amp, num_filtered_dust, num_filtered_quality, \
+                num_filtered_scanang, num_filtered_solzen = stats
 
             # statistics for filter percentage readout
             filter_stats['total'] += num_data_points
@@ -272,7 +272,7 @@ def calculate_averages_and_filter(results, hdf_filter):
         print('\nNo granule was the most cloud-free.')
     else:
         print('\nMost cloud-free granule: {0} ({1:.3g}% cloud-free)'.format(most_cloud_free_granule[0],
-                                                                    (1 - most_cloud_free_granule[1]) * 100))
+                                                                            (1 - most_cloud_free_granule[1]) * 100))
 
     if hdf_filter.examine_wavenumber_mode:
         curve_data = pd.DataFrame.from_dict(data, orient='index').T
@@ -529,7 +529,7 @@ def filter_dataset(df: pd.DataFrame, radiances: pd.DataFrame, radiances_quality:
 
     if hdf_filter.examine_wavenumber_mode:
         for bucket, radiances_ in radiances_by_latitude.items():
-            selected_radiances_by_latitude[bucket] = list(radiances_.iloc[:, selected_channel-1])
+            selected_radiances_by_latitude[bucket] = list(radiances_.iloc[:, selected_channel - 1])
 
     # bin radiances by latitude
     radiances_by_latitude_sum = dict.fromkeys(radiances_by_latitude)
@@ -538,7 +538,7 @@ def filter_dataset(df: pd.DataFrame, radiances: pd.DataFrame, radiances_quality:
         radiances_by_latitude_sum[bucket] = radiances_.sum()
         radiances_by_latitude_count[bucket] = radiances_.count()
 
-    #radiances_by_latitude_count = dict.fromkeys(radiances_by_latitude)
+    # radiances_by_latitude_count = dict.fromkeys(radiances_by_latitude)
     for bucket, radiances_mask_ in radiances_quality_mask_by_latitude.items():
         pass
         # radiances_by_latitude_count[bucket] = radiances_mask_.sum()

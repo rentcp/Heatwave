@@ -96,11 +96,12 @@ def get_information_from_xml(period, files):
         finished = False
         max_retries = 500
         num_retries = 0
+        files_processed = 0
+        total_files = len(files)
         while not finished:
-            desc = 'day {}'.format(_day)
-            if num_retries != 0:
-                desc = 'day {} (retry #{})'.format(_day, num_retries)
-            for filename in tqdm(files, desc='day {}'.format(_day)):
+            for filename in files:
+                files_processed += 1
+                print('Day {}: {}/{}'.format(_day, files_processed, total_files))
                 url = "%s/%s/%s/%s" % (BASE_URL, _year, _day, filename)
                 xml = get_html(http_client, url)
                 _kernel = filename.split('.')[4]

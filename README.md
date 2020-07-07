@@ -22,20 +22,6 @@ pip install pytest-randomly
 conda install matplotlib
 conda install pandas
 ```
->>>conda install py-hdf -c conda-forge
-
->>>conda install requests
-
->>>conda install pytest
-
->>>pip install asciimatics
-
->>>pip install pytest-randomly
-
->>>conda install matplotlib
-
->>>conda install pandas
-
 
 **Getting Started (Linux)**
 

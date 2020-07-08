@@ -48,8 +48,8 @@ class Granule(object):
     def _validate_init_parameters(year, day, granule_number):
         messages = []
 
-        if not 2002 <= year <= 2019:
-            messages.append('Year must be between 2002 and 2019 [%s passed].' % year)
+        if not 2002 <= year <= 2020:
+            messages.append('Year must be between 2002 and 2020 [%s passed].' % year)
         if not 1 <= day <= 365 + isleap(year):
             messages.append('Day must be between 1 and %s for %s [%s passed].' % (365 + isleap(year), year, day))
         if not 1 <= granule_number <= 240:

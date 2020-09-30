@@ -1,0 +1,48 @@
+        {
+            "data_directory": "G:\\DATA_EH",
+            "output_directory": "G:\\OUTPUT\\batch_EH",
+            
+            "date_range_start": "09/01/2002",
+            "date_range_end": "08/31/2019",
+            
+            "time_range_start": "00:00",
+            "time_range_end": "23:59",
+            
+            "min_latitude": -90,
+            "max_latitude": 90,
+            "min_longitude": 160,
+            "max_longitude": 180,
+            "include_prime_meridian": false,
+            
+            "data_quality_best": true,
+            "data_quality_enough": true,
+            "data_quality_worst": false,
+            
+            "dust_flag_no_dust": true,
+            "dust_flag_single_fov": true,
+            "dust_flag_detected": true,
+            
+            "landfrac_threshold": 1.00,
+			"landfrac_threshold_is_max": true,
+            "noise_amp": false,
+
+			"TotCld_4_CCfinal_threshold": 0.00,
+			"TotCld_4_CCfinal_threshold_is_max": true,
+			"all_spots_avg_threshold": 1.0,
+			"all_spots_avg_threshold_is_max": true,
+            
+            "minimum_gca": 100,
+			"solzen_threshold": 108,
+            "solzen_is_max": false,
+			
+			"num_batches": 0,
+			
+			"examine_wavenumber_mode": false,
+			"selected_wavenumber": 790,
+			
+			"scanang_limit": 15,
+			"inside_scanang": true,
+			
+			"test_hdf_output": false,
+			"delete_unreadable_granules": true
+        }

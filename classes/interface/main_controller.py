@@ -196,7 +196,8 @@ class MainController(object):
         max_latitude = float(data['max_latitude'])
         min_longitude = float(data['min_longitude'])
         max_longitude = float(data['max_longitude'])
-        min_gca = float(data['minimum_gca'])
+        gca_threshold = float(data['gca_threshold'])
+        gca_is_max = bool(data['gca_is_max'])
         include_prime_meridian = data['include_prime_meridian']
         if 'test_hdf_output' in data:
             test_hdf_output = data['test_hdf_output']
@@ -208,11 +209,11 @@ class MainController(object):
         if test_hdf_output:
             return aqua_positions.get_hdf_urls(
                 start_granule, end_granule, min_latitude, min_longitude, max_latitude, max_longitude,
-                include_prime_meridian, min_gca, test_hdf_output)
+                include_prime_meridian, gca_threshold, gca_is_max, test_hdf_output)
 
         return list(aqua_positions.get_hdf_urls(
             start_granule, end_granule, min_latitude, min_longitude, max_latitude, max_longitude,
-            include_prime_meridian, min_gca, test_hdf_output))
+            include_prime_meridian, gca_threshold, gca_is_max, test_hdf_output))
 
     @staticmethod
     def build_hdf_filter(data):

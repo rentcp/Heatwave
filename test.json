@@ -1,27 +1,27 @@
         {
             "data_directory": ".",
             "output_directory": ".",
-            
+
             "date_range_start": "12/31/2013",
             "date_range_end": "1/1/2014",
-            
+
             "time_range_start": "00:00",
             "time_range_end": "03:39",
-            
+
             "min_latitude": -90,
             "max_latitude": 90,
             "min_longitude": -180,
             "max_longitude": 180,
             "include_prime_meridian": true,
-            
+
             "data_quality_best": true,
             "data_quality_enough": true,
             "data_quality_worst": false,
-            
+
             "dust_flag_no_dust": true,
             "dust_flag_single_fov": true,
             "dust_flag_detected": true,
-            
+
             "landfrac_threshold": 1.00,
 			"landfrac_threshold_is_max": true,
             "noise_amp": false,
@@ -30,11 +30,12 @@
 			"TotCld_4_CCfinal_threshold_is_max": false,
 			"all_spots_avg_threshold": 0.0,
 			"all_spots_avg_threshold_is_max": false,
-            
-            "minimum_gca": 100,
-			"solzen_threshold": 108,
+
+            "gca_threshold": 100,
+            "gca_is_max": false,
+            "solzen_threshold": 108,
 			"solzen_is_max": false,
-			
+
 			"num_batches": 0,
 
 			"examine_wavenumber_mode": false,

@@ -210,7 +210,7 @@ def calculate_lat_lon_filter_condition(data, min_lat, max_lat, min_lon, max_lon,
 class AquaPositions(object):
 
     def get_hdf_urls(self, start_granule, end_granule, min_latitude, min_longitude, max_latitude, max_longitude,
-                     include_prime_meridian, min_gca, test_hdf_output):
+                     include_prime_meridian, gca_threshold, gca_is_max, test_hdf_output):
         min_year, max_year = start_granule.year, end_granule.year
         base_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', 'data'))
 
@@ -236,8 +236,11 @@ class AquaPositions(object):
                 ((data.granule >= start_granule.granule_number) | (data.granule <= end_granule.granule_number))
             )
 
-        # check if granule was captured within minimum specified solar GCA
-        condition &= (data.GCA >= min_gca)
+        # check if granule was captured within min/max specified solar GCA
+        if gca_is_max:
+            condition &= (data.GCA <= gca_threshold)
+        else:
+            condition &= (data.GCA >= gca_threshold)
 
         # granule dates must be within the specified range
         data['date_value'] = data.year * 1000 + data.day  # same value as in Granule

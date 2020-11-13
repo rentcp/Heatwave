@@ -55,7 +55,7 @@ def main():
             "all_spots_avg_threshold_is_max": true,  # whether the above threshold is a minimum (false) or maximum (true)
             
             "gca_threshold": 139.4,  # central angle between AQUA AIRS and Earth's subsolar point, in degrees. (Threshold is INCLUSIVE)
-            "gca_is_max": 139.4,  # whether the GCA threshold is a minimum (false) or maximum (true)
+            "gca_is_max": false,  # whether the GCA threshold is a minimum (false) or maximum (true)
             "solzen_threshold": 180,  # value between 0 and 180, min or max solar zenith (Threshold is INCLUSIVE)
             "solzen_is_max": true,  # whether the solzen threshold is a minimum (false) or maximum (true)
             

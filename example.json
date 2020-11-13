@@ -23,7 +23,7 @@
             "dust_flag_detected": true,
             
             "landfrac_threshold": 1.00,
-			"landfrac_threshold_is_max": true,
+		"landfrac_threshold_is_max": true,
             "noise_amp": false,
 
 			"TotCld_4_CCfinal_threshold": 0.00,
@@ -42,5 +42,8 @@
 			"selected_wavenumber": 790,
 			
 			"scanang_limit": 50,
-			"inside_scanang": true
+			"inside_scanang": true,
+		
+		"test_hdf_output": false,
+		"delete_unreadable_granules": true
         }

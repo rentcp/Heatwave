@@ -1,15 +1,12 @@
 import os
 from multiprocessing import Pool
 
-import datetime
-from time import strftime
-
 import numpy as np
 import pandas as pd
 import pyhdf
+import requests
 from pyhdf.SD import SD
 from pyhdf.error import HDF4Error
-import requests
 
 from classes.constants import CHANNELS_TO_WAVELENGTHS
 from ._http import SessionWithHeaderRedirection
@@ -168,6 +165,8 @@ class HDFDataAggregator(object):
 
         # (granule, radiances_sum, radiances_count, radiances, filter_stats)
         results = async_results.get()
+
+        # curve_data, filter_stats, count_data, wavenumber_details
         return calculate_averages_and_filter(results, hdf_filter)
 
 
@@ -193,7 +192,7 @@ def calculate_averages_and_filter(results, hdf_filter):
         if result[1] is not None:
             if not hdf_filter.examine_wavenumber_mode:
                 granule, radiances_by_latitude_sum, radiances_by_latitude_count, radiances_by_latitude, stats, \
-                    cloud_info = result
+                cloud_info, wavenumber_details = result
 
                 if cloud_info[1] < most_cloud_free_granule[1]:
                     most_cloud_free_granule = cloud_info
@@ -239,7 +238,7 @@ def calculate_averages_and_filter(results, hdf_filter):
                                  ))
             else:
                 granule, radiances_by_latitude_sum, radiances_by_latitude_count, radiances_by_latitude, stats, \
-                    cloud_info = result
+                cloud_info, wavenumber_details = result
 
                 if cloud_info[1] < most_cloud_free_granule[1]:
                     most_cloud_free_granule = cloud_info
@@ -251,8 +250,8 @@ def calculate_averages_and_filter(results, hdf_filter):
                         data[k] += v
 
             num_data_points, num_filtered_total, num_filtered_landfrac, num_filtered_cloud_cover, \
-                num_filtered_all_spots, num_filtered_noise_amp, num_filtered_dust, num_filtered_quality, \
-                num_filtered_scanang, num_filtered_solzen = stats
+            num_filtered_all_spots, num_filtered_noise_amp, num_filtered_dust, num_filtered_quality, \
+            num_filtered_scanang, num_filtered_solzen = stats
 
             # statistics for filter percentage readout
             filter_stats['total'] += num_data_points
@@ -280,7 +279,8 @@ def calculate_averages_and_filter(results, hdf_filter):
         curve_data = pd.DataFrame(data, columns=columns)
 
     if hdf_filter.examine_wavenumber_mode:
-        return curve_data, None, None
+        # curves_data, filter_stats, count_data, wavenumber_details
+        return curve_data, None, None, wavenumber_details
 
     # convert 'period' column to datetime for sorting
     curve_data['period'] = pd.to_datetime(curve_data.period)
@@ -290,7 +290,8 @@ def calculate_averages_and_filter(results, hdf_filter):
 
     if curve_data.empty:
         print("No data to filter!")
-        return curve_data, None, None
+        # curves_data, filter_stats, count_data, wavenumber_details
+        return curve_data, None, None, None
 
     curve_data = curve_data.groupby(['period', 'wavenumber']).sum().reset_index()
     count_data = curve_data.copy()
@@ -311,7 +312,8 @@ def calculate_averages_and_filter(results, hdf_filter):
     count_data.drop(columns=count_drop_columns,
                     inplace=True)
 
-    return curve_data, filter_stats, count_data
+    # curves_data, filter_stats, count_data, wavenumber_details
+    return curve_data, filter_stats, count_data, None
 
 
 def extract_granule_dataset(granule, hdf_filter: HDFFilter):
@@ -343,6 +345,7 @@ def extract_granule_dataset(granule, hdf_filter: HDFFilter):
         longitude = pd.DataFrame(data.select('Longitude').get())
         scanang = pd.DataFrame(data.select('scanang').get())
         solzen = pd.DataFrame(data.select('solzen').get())
+        timestamp = pd.DataFrame(data.select('Time').get())
     except pyhdf.error.HDF4Error:
         print("A dataset is missing in granule: {}".format(granule.local_file_name))
         return granule, None, None, None
@@ -369,19 +372,22 @@ def extract_granule_dataset(granule, hdf_filter: HDFFilter):
         'latitude': latitude,
         'longitude': longitude,
         'scanang': scanang,
-        'solzen': solzen
+        'solzen': solzen,
+        'timestamp': timestamp
     }
     dataset = pd.concat([df.stack() for df in datasets.values()], axis=1, keys=datasets.keys())
 
     granule_cloud_cover_avg = cloud_cover.mean().mean()
     cloud_info = (granule.local_file_name, granule_cloud_cover_avg)
 
-    radiances_by_latitude_sum, radiances_by_latitude_count, selected_radiances, stats = filter_dataset(dataset,
-                                                                                                       radiances,
-                                                                                                       radiances_qc,
-                                                                                                       hdf_filter)
+    radiances_by_latitude_sum, radiances_by_latitude_count, selected_radiances, stats, wavenumber_details = \
+        filter_dataset(
+            dataset,
+            radiances,
+            radiances_qc,
+            hdf_filter)
 
-    return granule, radiances_by_latitude_sum, radiances_by_latitude_count, selected_radiances, stats, cloud_info
+    return granule, radiances_by_latitude_sum, radiances_by_latitude_count, selected_radiances, stats, cloud_info, wavenumber_details
 
 
 def filter_dataset(df: pd.DataFrame, radiances: pd.DataFrame, radiances_quality: pd.DataFrame, hdf_filter: HDFFilter):
@@ -491,6 +497,19 @@ def filter_dataset(df: pd.DataFrame, radiances: pd.DataFrame, radiances_quality:
     num_filtered_solzen = num_data_points - radiances[condition].count().sum() - num_filtered_total
     num_filtered_total += num_filtered_solzen
 
+    filtered_wavenumber_data = None
+
+    if hdf_filter.examine_wavenumber_mode:
+        # Create dataset for examine wavenumber mode: Timestamp, Lat, Lon, Radiance of each value that passed filters
+        filtered_wavenumber_data = df[condition]
+        filtered_wavenumber_data = filtered_wavenumber_data[['timestamp', 'lat', 'lon']]
+
+        # Convert 'seconds since 01-01-1993' timestamp to Unix timestamp
+        filtered_wavenumber_data['timestamp'] = filtered_wavenumber_data['timestamp'].astype(int) + 725846400
+
+        filtered_wavenumber_data['timestamp'] = pd.to_datetime(filtered_wavenumber_data.timestamp, unit='s')
+        filtered_wavenumber_data['radiances'] = list(radiances[condition].iloc[:, selected_channel - 1])
+
     for bucket, data in radiances_by_latitude_mask.items():
         radiances_by_latitude_mask[bucket] &= condition
 
@@ -544,4 +563,4 @@ def filter_dataset(df: pd.DataFrame, radiances: pd.DataFrame, radiances_quality:
         # radiances_by_latitude_count[bucket] = radiances_mask_.sum()
 
     # return the sum of all applicable radiances and their count per channel
-    return radiances_by_latitude_sum, radiances_by_latitude_count, selected_radiances_by_latitude, filter_stats
+    return radiances_by_latitude_sum, radiances_by_latitude_count, selected_radiances_by_latitude, filter_stats, filtered_wavenumber_data

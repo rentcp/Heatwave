@@ -30,11 +30,12 @@
 			"TotCld_4_CCfinal_threshold_is_max": false,
 			"all_spots_avg_threshold": 0.0,
 			"all_spots_avg_threshold_is_max": false,
-            
-            "gca_threshold": 0,
+          
+      "gca_threshold": 0,
 	    "gca_is_max": false,
+
 			"solzen_threshold": 0,
-            "solzen_is_max": false,
+      "solzen_is_max": false,
 			
 			"num_batches": 0,
 

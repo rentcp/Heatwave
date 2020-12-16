@@ -78,6 +78,18 @@ Each file has the same dimensions.
 - File 1 contains the average radiance for each latitude bin for each AIRS channel for each month processed.
 - File 2 contains the count of radiance measurements that contributed to the average in file 1.
 
+### Running tests
+To run these tests, this is the command that works on my system (requires pytest to be installed):
+python -m pytest tests/
+
+By default, this will capture and hide any information that is normally printed to the console. If a test fails, check the verbose output by adding the -s flag:
+python -m pytest tests/ -s
+
+Adding new tests
+To add a new test, add a pair of files 'your_test.json' and same-named 'your_test.csv' with the input JSON data and expected granule selection info, respectively. Check the included example under 'tests/granule_selection_test_data/example_test.json'.
+
+As soon as new test JSON and CSV data is added to this directory, a test is automatically added and will be run by pytest.
+
 ### Versioning
 Version 17 was released onto GitHub for public consumption.
 For the latest versions available, see the tags on this repository.

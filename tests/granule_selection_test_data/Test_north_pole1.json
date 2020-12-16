@@ -31,7 +31,8 @@
 			"all_spots_avg_threshold": 0.0,
 			"all_spots_avg_threshold_is_max": false,
             
-            "minimum_gca": 0,
+            "gca_threshold": 0,
+	    "gca_is_max": false,
 			"solzen_threshold": 0,
             "solzen_is_max": false,
 			

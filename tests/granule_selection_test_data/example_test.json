@@ -31,7 +31,8 @@
 	    "all_spots_avg_threshold": 0.0,
 	    "all_spots_avg_threshold_is_max": false,
             
-            "minimum_gca": 0,
+            "gca_threshold": 0,
+	    "gca_is_max": false,
 	    "num_batches": 0,
 
 	    "examine_wavenumber_mode": false,

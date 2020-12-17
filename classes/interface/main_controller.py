@@ -38,13 +38,13 @@ class MainController(object):
 
         hdf_filter = self.build_hdf_filter(data)
 
-        curves_data, filter_stats, count_data = self.aggregate_hdf_data(all_granules, hdf_filter)
+        curves_data, filter_stats, count_data, wavenumber_details = self.aggregate_hdf_data(all_granules, hdf_filter)
 
         self.signal_status_update('>>> Writing output...')
 
         data_copy = data.copy()
         data_copy['output_directory'] = os.path.join(data['output_directory'], 'stats')
-        self.write_output_files(data, curves_data)
+        self.write_output_files(data, curves_data, wavenumber_details)
         if not hdf_filter.examine_wavenumber_mode:
             self.write_output_files(data_copy, count_data)
 
@@ -64,7 +64,7 @@ class MainController(object):
             os.remove(file)
 
     @staticmethod
-    def write_output_files(data, curves_data):
+    def write_output_files(data, curves_data, wavenumber_details=None):
         output_dir = data['output_directory']
         if not os.path.isdir(output_dir):
             os.makedirs(output_dir)
@@ -88,6 +88,11 @@ class MainController(object):
             curves_data.to_csv(base_filename + '.csv', index=False, date_format='%m-%Y')
         else:
             print('No data to write.')
+
+        # Write wavenumber details file if applicable
+        if wavenumber_details is not None:
+            wavenumber_details = wavenumber_details.round(4)
+            wavenumber_details.to_csv(base_filename + '_details.csv', index=False)
 
         return  # No longer need to show plot
 

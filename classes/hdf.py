@@ -179,7 +179,9 @@ def calculate_averages_and_filter(results, hdf_filter):
     wavelengths = list(CHANNELS_TO_WAVELENGTHS.values())
 
     data = []
+    wavenumber_data = None
     if hdf_filter.examine_wavenumber_mode and results:
+        wavenumber_data = pd.DataFrame(columns=['timestamp', 'lat', 'lon', 'radiances'])
         data = {}
         data = data.fromkeys(results[0][2], [])
 
@@ -243,6 +245,15 @@ def calculate_averages_and_filter(results, hdf_filter):
                 if cloud_info[1] < most_cloud_free_granule[1]:
                     most_cloud_free_granule = cloud_info
 
+                try:
+                    if wavenumber_details is not None:
+                        wavenumber_data = pd.concat([wavenumber_data, wavenumber_details])
+
+                except Exception as e:
+                    print('Error concatenating wavenumber details data. Operands:')
+                    print(wavenumber_data.head())
+                    print(wavenumber_details.head())
+
                 for k, v in radiances_by_latitude.items():
                     if not data[k]:
                         data[k] = v
@@ -280,7 +291,7 @@ def calculate_averages_and_filter(results, hdf_filter):
 
     if hdf_filter.examine_wavenumber_mode:
         # curves_data, filter_stats, count_data, wavenumber_details
-        return curve_data, None, None, wavenumber_details
+        return curve_data, None, None, wavenumber_data
 
     # convert 'period' column to datetime for sorting
     curve_data['period'] = pd.to_datetime(curve_data.period)
@@ -509,6 +520,8 @@ def filter_dataset(df: pd.DataFrame, radiances: pd.DataFrame, radiances_quality:
 
         filtered_wavenumber_data['timestamp'] = pd.to_datetime(filtered_wavenumber_data.timestamp, unit='s')
         filtered_wavenumber_data['radiances'] = list(radiances[condition].iloc[:, selected_channel - 1])
+        if len(filtered_wavenumber_data) == 0:
+            filtered_wavenumber_data = None
 
     for bucket, data in radiances_by_latitude_mask.items():
         radiances_by_latitude_mask[bucket] &= condition

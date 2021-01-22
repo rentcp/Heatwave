@@ -294,7 +294,7 @@ def main():
                     input_file_name.split('.')[0] + '-' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
                 )
 
-                combined_csv.to_csv(base_filename + '_concatenated' + '.csv', index=False, date_format='%Y-%m')
+                combined_csv.to_csv(base_filename + '.csv', index=False, date_format='%Y-%m')
                 combined_stats_csv.to_csv(base_filename + '_stats' + '.csv', index=False, date_format='%Y-%m')
 
                 # Delete the temp folder and all its contents

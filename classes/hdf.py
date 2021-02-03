@@ -519,7 +519,14 @@ def filter_dataset(df: pd.DataFrame, radiances: pd.DataFrame, radiances_quality:
         filtered_wavenumber_data['timestamp'] = filtered_wavenumber_data['timestamp'].astype(int) + 725846400
 
         filtered_wavenumber_data['timestamp'] = pd.to_datetime(filtered_wavenumber_data.timestamp, unit='s')
-        filtered_wavenumber_data['radiances'] = list(radiances[condition].iloc[:, selected_channel - 1])
+
+        radiance_qc_filters = [hdf_filter.data_quality_best, hdf_filter.data_quality_enough,
+                               hdf_filter.data_quality_worst]
+        radiance_qc_values = [index for index, selected in enumerate(radiance_qc_filters) if selected]
+        radiances_quality_mask = radiances_quality.isin(radiance_qc_values)
+        quality_radiances = radiances[radiances_quality_mask]
+
+        filtered_wavenumber_data['radiances'] = list(quality_radiances[condition].iloc[:, selected_channel - 1])
         if len(filtered_wavenumber_data) == 0:
             filtered_wavenumber_data = None
 

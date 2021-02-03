@@ -527,6 +527,9 @@ def filter_dataset(df: pd.DataFrame, radiances: pd.DataFrame, radiances_quality:
         quality_radiances = radiances[radiances_quality_mask]
 
         filtered_wavenumber_data['radiances'] = list(quality_radiances[condition].iloc[:, selected_channel - 1])
+
+        # If radiance did not pass quality filter, remove row
+        filtered_wavenumber_data.dropna(subset=['radiances'], inplace=True)
         if len(filtered_wavenumber_data) == 0:
             filtered_wavenumber_data = None
 

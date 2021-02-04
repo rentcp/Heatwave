@@ -176,7 +176,7 @@ def calculate_averages_and_filter(results, hdf_filter):
         for bucket in results[0][2].keys():
             columns.append(bucket + '_sum')
             columns.append(bucket + '_count')
-    wavelengths = list(CHANNELS_TO_WAVELENGTHS.values())
+    wavelengths = pd.Series(CHANNELS_TO_WAVELENGTHS.values())
 
     data = []
     wavenumber_data = None
@@ -199,45 +199,46 @@ def calculate_averages_and_filter(results, hdf_filter):
                 if cloud_info[1] < most_cloud_free_granule[1]:
                     most_cloud_free_granule = cloud_info
 
-                periods = [granule.month_period] * len(wavelengths)
+                periods = pd.Series([granule.month_period] * len(wavelengths))
+
                 data += list(zip(periods, wavelengths,
-                                 radiances_by_latitude_sum['-90to-80'].tolist(),
-                                 radiances_by_latitude_count['-90to-80'].tolist(),
-                                 radiances_by_latitude_sum['-80to-70'].tolist(),
-                                 radiances_by_latitude_count['-80to-70'].tolist(),
-                                 radiances_by_latitude_sum['-70to-60'].tolist(),
-                                 radiances_by_latitude_count['-70to-60'].tolist(),
-                                 radiances_by_latitude_sum['-60to-50'].tolist(),
-                                 radiances_by_latitude_count['-60to-50'].tolist(),
-                                 radiances_by_latitude_sum['-50to-40'].tolist(),
-                                 radiances_by_latitude_count['-50to-40'].tolist(),
-                                 radiances_by_latitude_sum['-40to-30'].tolist(),
-                                 radiances_by_latitude_count['-40to-30'].tolist(),
-                                 radiances_by_latitude_sum['-30to-20'].tolist(),
-                                 radiances_by_latitude_count['-30to-20'].tolist(),
-                                 radiances_by_latitude_sum['-20to-10'].tolist(),
-                                 radiances_by_latitude_count['-20to-10'].tolist(),
-                                 radiances_by_latitude_sum['-10to0'].tolist(),
-                                 radiances_by_latitude_count['-10to0'].tolist(),
-                                 radiances_by_latitude_sum['0to10'].tolist(),
-                                 radiances_by_latitude_count['0to10'].tolist(),
-                                 radiances_by_latitude_sum['10to20'].tolist(),
-                                 radiances_by_latitude_count['10to20'].tolist(),
-                                 radiances_by_latitude_sum['20to30'].tolist(),
-                                 radiances_by_latitude_count['20to30'].tolist(),
-                                 radiances_by_latitude_sum['30to40'].tolist(),
-                                 radiances_by_latitude_count['30to40'].tolist(),
-                                 radiances_by_latitude_sum['40to50'].tolist(),
-                                 radiances_by_latitude_count['40to50'].tolist(),
-                                 radiances_by_latitude_sum['50to60'].tolist(),
-                                 radiances_by_latitude_count['50to60'].tolist(),
-                                 radiances_by_latitude_sum['60to70'].tolist(),
-                                 radiances_by_latitude_count['60to70'].tolist(),
-                                 radiances_by_latitude_sum['70to80'].tolist(),
-                                 radiances_by_latitude_count['70to80'].tolist(),
-                                 radiances_by_latitude_sum['80to90'].tolist(),
-                                 radiances_by_latitude_count['80to90'].tolist(),
-                                 ))
+                         radiances_by_latitude_sum['-90to-80'],
+                         radiances_by_latitude_count['-90to-80'],
+                         radiances_by_latitude_sum['-80to-70'],
+                         radiances_by_latitude_count['-80to-70'],
+                         radiances_by_latitude_sum['-70to-60'],
+                         radiances_by_latitude_count['-70to-60'],
+                         radiances_by_latitude_sum['-60to-50'],
+                         radiances_by_latitude_count['-60to-50'],
+                         radiances_by_latitude_sum['-50to-40'],
+                         radiances_by_latitude_count['-50to-40'],
+                         radiances_by_latitude_sum['-40to-30'],
+                         radiances_by_latitude_count['-40to-30'],
+                         radiances_by_latitude_sum['-30to-20'],
+                         radiances_by_latitude_count['-30to-20'],
+                         radiances_by_latitude_sum['-20to-10'],
+                         radiances_by_latitude_count['-20to-10'],
+                         radiances_by_latitude_sum['-10to0'],
+                         radiances_by_latitude_count['-10to0'],
+                         radiances_by_latitude_sum['0to10'],
+                         radiances_by_latitude_count['0to10'],
+                         radiances_by_latitude_sum['10to20'],
+                         radiances_by_latitude_count['10to20'],
+                         radiances_by_latitude_sum['20to30'],
+                         radiances_by_latitude_count['20to30'],
+                         radiances_by_latitude_sum['30to40'],
+                         radiances_by_latitude_count['30to40'],
+                         radiances_by_latitude_sum['40to50'],
+                         radiances_by_latitude_count['40to50'],
+                         radiances_by_latitude_sum['50to60'],
+                         radiances_by_latitude_count['50to60'],
+                         radiances_by_latitude_sum['60to70'],
+                         radiances_by_latitude_count['60to70'],
+                         radiances_by_latitude_sum['70to80'],
+                         radiances_by_latitude_count['70to80'],
+                         radiances_by_latitude_sum['80to90'],
+                         radiances_by_latitude_count['80to90'],
+                         ))
             else:
                 granule, radiances_by_latitude_sum, radiances_by_latitude_count, radiances_by_latitude, stats, \
                 cloud_info, wavenumber_details = result

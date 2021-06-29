@@ -176,7 +176,7 @@ def calculate_averages_and_filter(results, hdf_filter):
         for bucket in results[0][2].keys():
             columns.append(bucket + '_sum')
             columns.append(bucket + '_count')
-    wavelengths = pd.Series(CHANNELS_TO_WAVELENGTHS.values())
+    wavelengths = pd.Series(list(CHANNELS_TO_WAVELENGTHS.values()))
 
     data = []
     wavenumber_data = None
